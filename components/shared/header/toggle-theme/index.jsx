@@ -3,6 +3,7 @@
 import { useTheme } from 'next-themes';
 import { MoonIcon, SunIcon} from 'lucide-react';  
 import React, { useState, useEffect } from 'react';
+import { Button } from '@/components/ui/button';
 
 const ToggleTheme = () => {
     const [mounted, setMounted] = useState(false);
@@ -18,12 +19,11 @@ const ToggleTheme = () => {
     }
     return (
     <div className='inline-flex'>
-        <button onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
-                className="h-12 w-12 rounded-lg p-2 hover:bg-gray-100 dark:hover:bg-gray-700">
+        <Button variant='ghost' onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}>
                 {
                     theme === 'light' ? <SunIcon/> : <MoonIcon/> // This is just for debugging purposes, you can remove it if you want
                 }
-            </button>
+       </Button>
     </div>
   )
 }
