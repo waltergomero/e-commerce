@@ -5,6 +5,7 @@ import ProductPrice from '@/components/shared/product/product-price';
 import { getProductBySlug } from '@/actions/product-actions';
 import { notFound } from 'next/navigation';
 import { Card, CardContent } from '@/components/ui/card';
+import ProductImages from '@/components/shared/product/product-images';
 
 const ProductDetailsPage = async ({params}) => {
     const {slug} = await params;
@@ -19,12 +20,12 @@ const ProductDetailsPage = async ({params}) => {
         <section>
             <div className='grid grid-cols-1 md:grid-cols-5'>
                 <div className='col-span-2'>
-
+                    <ProductImages images={product.images}/>
                 </div>
                 <div className='col-span-2 p-5'>
                     <div className='flex flex-col gap-6'>
                         <p>
-                            {product.brand} {product.category}
+                            {product.brand} {product.category} 
                         </p>
                         <h1 className='h3-bold'>{product.name}</h1>
                         <p>{product.rating} of {product.numReviews} reviews </p>
@@ -33,7 +34,7 @@ const ProductDetailsPage = async ({params}) => {
                         </div>
                     </div>
                     <div className='mt-10'>
-                        <p className='font-semibold'>Description:</p>
+                        <p className='font-semibold'>Description 22:</p>
                         <p className='text-sm'>{product.description}</p>
                     </div>
                 </div>
