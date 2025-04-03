@@ -1,0 +1,6 @@
+-- to deploy seed
+npx tsx ./db/seed
+
+--deploy database changes
+npx prisma generate
+npx prisma 
