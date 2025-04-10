@@ -1,16 +1,12 @@
-import Footer from "@/components/shared/footer";
-import Header from "@/components/shared/header";
+
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 
-export default function RootLayout({ children }) {
+export default function AuthLayout({ children }) {
   return (
-<div className="flex h-screen flex-col">
-    <Header />
-    <main className="flex-1 wrapper">
+<div className="flex-center min-h-screen w-full">
       {children}
-    </main>
     <ToastContainer 
                   theme="colored"
                   position="top-center"
@@ -22,7 +18,7 @@ export default function RootLayout({ children }) {
                   toastClassName={"text-sm"}
                   pauseOnFocusLoss
                   pauseOnHover/> 
-    <Footer />
+
 </div>
   );
 }
