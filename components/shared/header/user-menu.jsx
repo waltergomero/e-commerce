@@ -1,7 +1,10 @@
 
+"use client"
+import { signOut, useSession } from "next-auth/react";
+
 import Link from 'next/link';
 import { signoutUser } from '@/actions/user-actions';
-import { auth } from '@/auth';
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,8 +17,9 @@ import { Button } from '@/components/ui/button';
 import { UserIcon } from '@heroicons/react/24/solid';
 
 
-const UserMenu = async () => {
-  const session  = await auth();
+
+const UserMenu =  () => {
+  const { data: session } = useSession()
   console.log("session: ", session)
 
     if(!session){
@@ -29,7 +33,9 @@ const UserMenu = async () => {
     }
 
   return (
-    <div>User Button</div>
+    <div>    
+      <Button onClick={() => signOut()}>Sign Out</Button>
+      </div>
   )
 }
 

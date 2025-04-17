@@ -2,12 +2,12 @@ import Footer from "@/components/shared/footer";
 import Header from "@/components/shared/header";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-//import { SessionProvider } from "next-auth/react"
+import { SessionProvider } from "next-auth/react"
 
 
 export default function RootLayout({ children }) {
   return (
-    // <SessionProvider>
+     <SessionProvider>
       <div className="flex h-screen flex-col">
           <Header />
           <main className="flex-1 wrapper">
@@ -26,6 +26,6 @@ export default function RootLayout({ children }) {
                         pauseOnHover/> 
           <Footer />
       </div>
-    // </SessionProvider>
+    </SessionProvider>
   );
 }
