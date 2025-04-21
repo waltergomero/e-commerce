@@ -31,7 +31,7 @@ const AddToCart = ({item}) => {
         });
     }
   return (
-    <Button className='w-full' type='button' onClick={handleAddToCart}>Add To Cart</Button>
+    <Button className='w-full' type='button' onClick={handleAddToCart}><Plus/> Add To Cart</Button>
   )
 }
 

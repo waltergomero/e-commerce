@@ -3,44 +3,41 @@ import GitHub from "next-auth/providers/github";
 import Google from "next-auth/providers/google";
 import bcryptjs from "bcryptjs";
 import { userSigninSchema } from "@/schemas/validation-schemas";
-import { PrismaAdapter } from "@auth/prisma-adapter"
-import  prisma from "@/prisma/prisma"
+
 
 export default {
-    adapter: PrismaAdapter(prisma),
+  
     providers: [
       Credentials({
         credentials: {
             email: {},
             password: {},
+            dbpassword:{},
+            id:{},
         },
         async authorize(credentials) {
-  
             const validateFields = userSigninSchema.safeParse(credentials);
 
             if (validateFields.error) {
                 throw new Error(validateFields.error.message);
             }
 
-            const { email, password } = credentials;
+            const { email, password, dbpassword, id } = credentials;
             
             try {         
-               const user = await prisma.User.findFirst({where: {email: email}});
-               if(!user.password)
+               //const user = await prisma.User.findFirst({where: {email: email}});
+               if(!dbpassword)
                {
                 throw new Error("Another account already exists with the same e-mail address. This email was registered with Google app.");
                }
 
-               if (user) {
-                    const isMatch =  await bcryptjs.compare(password, user.password); 
+               if (dbpassword) {
+                    const isMatch =  await bcryptjs.compare(password, dbpassword); 
 
                     if (isMatch) {
                         return {
-                            id: user.id,
-                            first_name: user.first_name,
-                            last_name: user.last_name,
-                            name: user.name,
-                            isadmin: user.isadmin
+                            id: id,
+                            email: email
                         };
                     } else {
                         throw new Error("Password is not correct");

@@ -40,14 +40,17 @@ export async function signInWithCredentials(formData) {
         };
       }
 
-      const user = await prisma.User.findFirst({where: {email: email}});
+      const _user = await prisma.User.findFirst({where: {email: email}});
+      const user = JSON.parse(JSON.stringify(_user));
 
-      if(user === null)
+      if(_user === null)
       {
        return {error: `User with email address ${email} doesn't exists.`};
       }
-  
-      await signIn("credentials", {email, password, redirect: false,});
+      const dbpassword = user.password;
+      const id = user.id;
+
+      await signIn("credentials", {email, password, dbpassword, id, redirect: false, });
       return { success: true, message:'Signed in successufully'};
     } 
     catch (error) {
