@@ -21,16 +21,9 @@ export const userSigninSchema = z.object({
 });
 
 
-
-
-
-
-
-
-
-export const userRegistrationSchema = z.object({
-  first_name: z.string().min(2, { message: 'Name must be at least 2 characters long' }),
-  last_name: z.string().min(2, { message: 'Name must be at least 2 characters long' }),
+export const userSignupSchema = z.object({
+  first_name: z.string().min(2, { message: 'First name must be at least 2 characters long' }),
+  last_name: z.string().min(2, { message: 'Last name must be at least 2 characters long' }),
   email: z.string().email({ message: 'Invalid email address' }),
   password: z.string().min(8, { message: 'Password must be at least 8 characters long' }),
 });
@@ -40,6 +33,38 @@ export const userUpdateSchema = z.object({
   last_name: z.string().min(2, { message: 'Name must be at least 2 characters long' }),
   email: z.string().email({ message: 'Invalid email address' }),
 });
+
+
+export const cartItemSchema = z.object({
+  productId: z.string().min(1, 'Product is required'),
+  product_name: z.string().min(1, { message: 'Product name is required' }),
+  slug: z.string().min(1, { message: 'Code name is required' }),
+  quantity: z.number().int().nonnegative('Quantity must be a positive number'),
+  image: z.string().min(1, 'Image is required'),
+  price: z.number(),
+});
+
+
+export const insertCartSchema = z.object({
+  items: z.array(cartItemSchema),
+  itemsPrice: z.number(),
+  totalPrice: z.number(),
+  shippingPrice: z.number(),
+  taxPrice: z.number(),
+  sessionCartId: z.string().min(1, 'Session cart id is required'),
+  userId: z.string().optional().nullable(),
+})
+
+
+
+
+
+
+
+
+
+
+
 
 
 export const statusSchema = z.object({

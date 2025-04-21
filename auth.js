@@ -13,7 +13,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
   },
 
   callbacks: {
-    async jwt({ token }) {
+    async jwt({ token, user, trigger, session }) {
       if(!token.sub) 
         return token;
 
@@ -26,8 +26,6 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
       token.last_name = existingUser.last_name || "";
       token.name = existingUser.name;
       token.isadmin = existingUser.isadmin || false;
-
-
       return token;
     },
     async session({ session, token }) {
@@ -37,8 +35,6 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
       session.user.name = token.name;
       session.user.email = token.email;
       session.user.isadmin = token.isadmin;
- 
-  
       return session;
     },
     

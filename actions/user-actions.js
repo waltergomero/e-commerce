@@ -2,13 +2,12 @@
 
 import { signIn, signOut } from '@/auth';
 import { AuthError } from 'next-auth';
+import bcryptjs from "bcryptjs";
 import { unstable_noStore as noStore } from 'next/cache';
 import { userSignupSchema, userSigninSchema, userUpdateSchema } from "@/schemas/validation-schemas";
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import  prisma  from '@/prisma/prisma';
-//import { PrismaClient } from '@prisma/client';
-
 
   //check if user exists using email
   export async function verifyIfUserExists(email) {
@@ -79,3 +78,75 @@ export async function signInWithCredentials(formData) {
       return({error: err + "Failed to fetch user!"});
     }
   };
+
+
+  //create an account
+  export async function createUser( formData, register=false) {
+    const redirectPath = register ? "/signin" : "/admin/users";
+     console.log("create user: ", formData)
+    try {
+      const _isAdmin = formData.get("isadmin");
+      const first_name = formData.get("first_name");
+      const last_name = formData.get("last_name");
+      const name = formData.get("first_name") + ", " + formData.get("last_name");
+      const email = formData.get("email");
+      const password = formData.get("password");
+      const isadmin = _isAdmin ? true : false;
+      const isactive = true;
+      const provider = "credentials";
+      const created_by = register ? formData.get("email") : formData.get("created_by");
+      const updated_by = register ? formData.get("email") : formData.get("updated_by");
+  
+      const validatedFields = userSignupSchema.safeParse({
+        first_name,
+        last_name,
+        email,
+        password
+      });
+  
+  
+      if (!validatedFields.success) {
+        return {
+          error: "validation",
+          zodErrors: validatedFields.error.flatten().fieldErrors,
+          strapiErrors: null,
+          message: "Missing information on key fields.",
+        };
+      }
+    
+      else{
+
+      const userexists = await prisma.User.findUnique({ where: {email: email}});
+      if (userexists) {
+        return { 
+          error: "userexists",
+          message: `User with this email account ${email} already exists.`, 
+          }
+        }
+        
+      const salt = await bcryptjs.genSalt(10);
+      const hashedPassword = await bcryptjs.hash(password, salt);
+  
+      const newUser = {
+        first_name,
+        last_name,
+        name,
+        email,
+        password: hashedPassword,
+        isadmin,
+        isactive,
+        provider,
+        created_by: created_by,
+        updated_by: updated_by,
+      };
+  
+      await prisma.User.create({data:newUser});
+    }
+  
+    } catch (err) {
+      return { error: "Failed to insert new user!" + err};
+    }
+  
+    revalidatePath(redirectPath);
+    redirect(redirectPath);
+  }

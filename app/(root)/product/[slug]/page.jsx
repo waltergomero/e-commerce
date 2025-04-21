@@ -1,6 +1,6 @@
 import React, { Fragment } from 'react';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
+import AddToCart from '@/components/shared/product/add-to-cart';
 import ProductPrice from '@/components/shared/product/product-price';
 import { getProductBySlug } from '@/actions/product-actions';
 import { notFound } from 'next/navigation';
@@ -55,7 +55,14 @@ const ProductDetailsPage = async ({params}) => {
                             </div>
                             {product.stock > 0 && (
                                 <div className='flex-center'>
-                                    <Button className='w-full'>Add to Cart</Button>
+                                    <AddToCart item={{
+                                        productId: product.id,
+                                        product_name: product.product_name,
+                                        slug: product.slug,
+                                        price: product.price,
+                                        quantity: 1,
+                                        image: product.images[0],
+                                    }}/>
                                 </div> )
                             }
                         </CardContent>

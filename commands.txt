@@ -1,0 +1,8 @@
+-- generate
+npx prisma generate
+
+--create migration
+npx prisma migrate dev --name add-create
+
+--seed
+npx tsx ./db/seed
