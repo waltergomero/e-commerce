@@ -1,8 +1,13 @@
-'user server';
+'use server';
 
 import prisma from "@/prisma/prisma";
 
 
-export async function AddItemToCart(params) {
+export async function AddItemToCart(data) {
+
+    return({
+        success: true,
+        message: 'Item added to cart.'
+    })
     
 }

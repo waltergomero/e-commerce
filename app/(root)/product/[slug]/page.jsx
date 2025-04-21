@@ -59,7 +59,7 @@ const ProductDetailsPage = async ({params}) => {
                                         productId: product.id,
                                         product_name: product.product_name,
                                         slug: product.slug,
-                                        price: product.price,
+                                        price: product.price.toString(),
                                         quantity: 1,
                                         image: product.images[0],
                                     }}/>
