@@ -10,7 +10,7 @@ datasource db {
 
 model Product {
   id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name        String
+  product_name        String
   slug        String   @unique(map: "product_slug_idx")
   category    String
   images      String[]

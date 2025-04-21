@@ -1,3 +1,7 @@
+
+-- reset DATABASE
+npx prisma migrate reset
+
 -- generate
 npx prisma generate
 

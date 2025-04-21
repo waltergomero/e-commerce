@@ -1,11 +1,11 @@
 import React, { Fragment } from 'react';
 import { Badge } from '@/components/ui/badge';
-import AddToCart from '@/components/shared/product/add-to-cart';
 import ProductPrice from '@/components/shared/product/product-price';
 import { getProductBySlug } from '@/actions/product-actions';
 import { notFound } from 'next/navigation';
 import { Card, CardContent } from '@/components/ui/card';
 import ProductImages from '@/components/shared/product/product-images';
+import AddToCart from '@/components/shared/product/add-to-cart';
 
 const ProductDetailsPage = async ({params}) => {
     const {slug} = await params;
@@ -27,7 +27,7 @@ const ProductDetailsPage = async ({params}) => {
                         <p>
                             {product.brand} {product.category} 
                         </p>
-                        <h1 className='h3-bold'>{product.name}</h1>
+                        <h1 className='h3-bold'>{product.product_name}</h1>
                         <p>{product.rating.toString()} of {product.numReviews} reviews </p>
                         <div className='flex flex-col sm:flex-row sm:items-center gap-3'>
                             <ProductPrice value={product.price} className='w-24 rounded-full bg-green-100 text-green-700 px-5 py-2'/>
