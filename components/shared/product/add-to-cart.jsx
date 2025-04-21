@@ -4,8 +4,7 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
 import { Plus } from 'lucide-react';
-import { ToastContainer, ToastContentProps, toast  } from 'react-toastify';
-import {Toaster} from '@/components/ui/sonner';
+import { toast  } from 'react-toastify';
 import {AddItemToCart} from '@/actions/cart-actions';
 import cx from 'clsx';
 import Link from 'next/link';
@@ -27,7 +26,6 @@ const AddToCart = ({item}) => {
             title: `${item.product_name} `,
             content: 'was added to cart',
           },
-          progress: 0.2,
           ariaLabel: 'was added to cart',
           autoClose: true,
         });
@@ -39,11 +37,7 @@ const AddToCart = ({item}) => {
 
 export default AddToCart;
 
-function CustomNotification({
-  closeToast,
-  data,
-  toastProps,
-}) 
+function CustomNotification({data,  toastProps,}) 
 {
   const isColored = toastProps.theme === 'colored';
 
