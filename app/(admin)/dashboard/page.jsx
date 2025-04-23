@@ -6,7 +6,10 @@ const DashboardPage = async () => {
   return (
     <>
         <div>DashboardPage</div>
-        {session?.user?.name}
+        {session.user?.email}
+        {session.user?.name}
+        {session.user?.isadmin.toString()}
+        {session.user?.id}
     </>
     
   )

@@ -1,18 +1,22 @@
 import NextAuth from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
+import GitHub from "next-auth/providers/github";
+import Google from "next-auth/providers/google";
 import { authConfig } from './auth.config';
-import { z } from 'zod';
+import { userSigninSchema } from "@/schemas/validation-schemas";
 import bcryptjs from "bcryptjs";
+import { PrismaAdapter } from "@auth/prisma-adapter";
+import  prisma from "@/prisma/prisma";
+import {fetchUserById,} from "@/actions/user-actions";
 
 export const { auth, signIn, signOut } = NextAuth({
+    adapter: PrismaAdapter(prisma),
   ...authConfig,
       providers: [
         Credentials({
           credentials: {
               email: {},
               password: {},
-              dbpassword:{},
-              id:{},
           },
           async authorize(credentials) {
               const validateFields = userSigninSchema.safeParse(credentials);
@@ -21,21 +25,22 @@ export const { auth, signIn, signOut } = NextAuth({
                   throw new Error(validateFields.error.message);
               }
   
-              const { email, password, dbpassword, id } = credentials;
-              
+              const { email, password, } = credentials;
+              console.log("email, password: ", email, password)
               try {         
-                 //const user = await prisma.User.findFirst({where: {email: email}});
-                 if(!dbpassword)
+                 const user = await prisma.User.findFirst({where: {email: email}});
+ 
+                 if(!user.password)
                  {
                   throw new Error("Another account already exists with the same e-mail address. This email was registered with Google app.");
                  }
   
-                 if (dbpassword) {
-                      const isMatch =  await bcryptjs.compare(password, dbpassword); 
+                 if (user) {
+                      const isMatch =  await bcryptjs.compare(password, user.password); 
   
                       if (isMatch) {
                           return {
-                              id: id,
+                              id: user.id,
                               email: email
                           };
                       } else {
@@ -73,4 +78,35 @@ export const { auth, signIn, signOut } = NextAuth({
           
       }),
       ],
+        callbacks: {
+          async jwt({ token, user, trigger, session }) {
+            if(!token.sub) 
+              return token;
+      
+            const existingUser = await fetchUserById(token.sub)
+      
+            if(!existingUser) 
+              return token;
+      
+            token.first_name = existingUser.first_name || "";
+            token.last_name = existingUser.last_name || "";
+            token.name = existingUser.name;
+            token.isadmin = existingUser.isadmin || false;
+
+            console.log("token", token)
+            
+            return token;
+          },
+          async session({ session, token }) {
+            session.user.id = token.sub;
+            session.user.first_name = token.first_name;
+            session.user.last_name = token.last_name;
+            session.user.name = token.name;
+            session.user.email = token.email;
+            session.user.isadmin = token.isadmin;
+            console.log("session", session)
+            return session;
+          },  
+            
+        },
 });
