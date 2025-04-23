@@ -21,7 +21,7 @@ const ProductCard = ({product}) => {
             <div className='text-sm font-bold'>{product.brand}</div>
             <Link href={`/product/${product.slug}`}>
              <h2 className='text-sm font-medium'>
-                {product.name}
+                {product.product_name}
              </h2>
             </Link>
 

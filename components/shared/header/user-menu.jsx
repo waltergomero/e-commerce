@@ -20,8 +20,6 @@ import { UserIcon } from '@heroicons/react/24/solid';
 
 const UserMenu =  () => {
   const { data: session } = useSession()
-  console.log("session: ", session)
-
     if(!session){
       return(
         <Button asChild className='default'>

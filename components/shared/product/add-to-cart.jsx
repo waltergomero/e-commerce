@@ -11,8 +11,6 @@ import Link from 'next/link';
 
 const AddToCart = ({item}) => {
     const router = useRouter();
-    console.log("item paased: ", item)
-
     const handleAddToCart = async () => {
          const res = await AddItemToCart(item) 
 

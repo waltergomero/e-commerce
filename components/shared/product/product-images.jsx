@@ -6,7 +6,6 @@ import { cn } from '@/lib/utils';
 
 
 const ProductImages = ({images}) => {
-    console.log("images", images)
     const [current, setCurrent] = useState(0)
 
   return (

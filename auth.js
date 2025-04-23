@@ -1,46 +1,76 @@
-import NextAuth from "next-auth";
-import authConfig from "./auth.config";
-import {fetchUserById, fetchUserByEmailInAccount} from "@/actions/user-actions";
-import { PrismaAdapter } from "@auth/prisma-adapter";
-import  prisma from "@/prisma/prisma";
+import NextAuth from 'next-auth';
+import Credentials from 'next-auth/providers/credentials';
+import { authConfig } from './auth.config';
+import { z } from 'zod';
+import bcryptjs from "bcryptjs";
 
- 
-export const { auth, handlers, signIn, signOut } = NextAuth({
-  adapter: PrismaAdapter(prisma),
-  session: { strategy: "jwt" },
+export const { auth, signIn, signOut } = NextAuth({
   ...authConfig,
-  pages: {
-    signIn: "/signin",
-    signOut: "/",
-    error: "/signin",
-  },
-
-  callbacks: {
-    async jwt({ token, user, trigger, session }) {
-      if(!token.sub) 
-        return token;
-
-      const existingUser = await fetchUserById(token.sub)
-
-      if(!existingUser) 
-        return token;
-
-      token.first_name = existingUser.first_name || "";
-      token.last_name = existingUser.last_name || "";
-      token.name = existingUser.name;
-      token.isadmin = existingUser.isadmin || false;
-      return token;
-    },
-    async session({ session, token }) {
-      session.user.id = token.sub;
-      session.user.first_name = token.first_name;
-      session.user.last_name = token.last_name;
-      session.user.name = token.name;
-      session.user.email = token.email;
-      session.user.isadmin = token.isadmin;
-      return session;
-    },
-    
-  },
-
-  })
+      providers: [
+        Credentials({
+          credentials: {
+              email: {},
+              password: {},
+              dbpassword:{},
+              id:{},
+          },
+          async authorize(credentials) {
+              const validateFields = userSigninSchema.safeParse(credentials);
+  
+              if (validateFields.error) {
+                  throw new Error(validateFields.error.message);
+              }
+  
+              const { email, password, dbpassword, id } = credentials;
+              
+              try {         
+                 //const user = await prisma.User.findFirst({where: {email: email}});
+                 if(!dbpassword)
+                 {
+                  throw new Error("Another account already exists with the same e-mail address. This email was registered with Google app.");
+                 }
+  
+                 if (dbpassword) {
+                      const isMatch =  await bcryptjs.compare(password, dbpassword); 
+  
+                      if (isMatch) {
+                          return {
+                              id: id,
+                              email: email
+                          };
+                      } else {
+                          throw new Error("Password is not correct");
+                      }
+                  } else {
+                      throw new Error("User not found");
+                  }
+              } catch (error) {
+                  throw new Error(error);
+              }
+          },
+      }),
+      GitHub({
+          clientId: process.env.AUTH_GITHUB_ID,
+          clientSecret: process.env.AUTH_GITHUB_SECRET,
+          // authorization: {
+          //     params: {
+          //         prompt: "consent",
+          //         access_type: "offline",
+          //         response_type: "code",
+          //     },
+          // },
+      }),
+      Google({
+          clientId: process.env.AUTH_GOOGLE_ID,
+          clientSecret: process.env.AUTH_GOOGLE_SECRET,
+          // authorization: {
+          //     params: {
+          //         prompt: "consent",
+          //         access_type: "offline",
+          //         response_type: "code",
+          //     },
+          // },
+          
+      }),
+      ],
+});

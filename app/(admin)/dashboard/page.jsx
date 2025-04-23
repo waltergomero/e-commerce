@@ -1,9 +1,8 @@
 import React from 'react';
-import { auth } from '@/auth';
+import { auth } from '@/auth2';
 
 const DashboardPage = async () => {
     const session = await auth();
-    console.log("session", session)
   return (
     <>
         <div>DashboardPage</div>

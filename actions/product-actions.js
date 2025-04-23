@@ -1,12 +1,8 @@
 'use server';
 
-
 import  prisma  from '@/prisma/prisma';
-//import { PrismaClient } from '@prisma/client';
 import { convertToPlainObject } from "@/lib/utils";
 import { LATEST_PRODUCTS_LIMIT } from '@/lib/constants';
-
-//const prisma = new PrismaClient();
 
 //get all products
 export async function getLatestProducts() {

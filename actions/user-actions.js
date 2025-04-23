@@ -1,6 +1,6 @@
 'use server';
 
-import { signIn, signOut } from '@/auth';
+import { signIn, signOut } from '@/auth2';
 import { AuthError } from 'next-auth';
 import bcryptjs from "bcryptjs";
 import { unstable_noStore as noStore } from 'next/cache';
@@ -86,7 +86,6 @@ export async function signInWithCredentials(formData) {
   //create an account
   export async function createUser( formData, register=false) {
     const redirectPath = register ? "/signin" : "/admin/users";
-     console.log("create user: ", formData)
     try {
       const _isAdmin = formData.get("isadmin");
       const first_name = formData.get("first_name");
