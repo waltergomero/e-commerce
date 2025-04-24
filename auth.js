@@ -92,9 +92,7 @@ export const { auth, signIn, signOut } = NextAuth({
             token.last_name = existingUser.last_name || "";
             token.name = existingUser.name;
             token.isadmin = existingUser.isadmin || false;
-
-            console.log("token", token)
-            
+      
             return token;
           },
           async session({ session, token }) {
@@ -104,7 +102,7 @@ export const { auth, signIn, signOut } = NextAuth({
             session.user.name = token.name;
             session.user.email = token.email;
             session.user.isadmin = token.isadmin;
-            console.log("session", session)
+         
             return session;
           },  
             

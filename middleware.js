@@ -1,18 +1,26 @@
 
 import { NextResponse } from "next/server";
+import NextAuth from 'next-auth';
+import { authConfig } from './auth.config';
+import { NextURL } from "next/dist/server/web/next-url";
 
-export function middleware(request) {
-  const accessToken = request.cookies.get("accessToken")?.value;
+const {auth} = NextAuth(authConfig);
 
-      const isLoggedIn = !!auth?.user;
+export async function middleware(request) {
+   const session = await auth();
+   const { nextUrl } = request;
+   console.log("session: ", session)
+   console.log("nextUrl: ", nextUrl)
+
       const isOnDashboard = nextUrl.pathname.startsWith('/dashboard');
-      if (isOnDashboard) {
-        if (isLoggedIn) 
-          return true;
-        else 
-          return false; // Redirect unauthenticated users to login page  
-      } 
-       return true;
+      console.log("isOnDashboard: ", isOnDashboard)
+      //  if (isOnDashboard) {
+      //   if (isLoggedIn) 
+      //     return true;
+      //   else 
+      //     return false; // Redirect unauthenticated users to login page  
+      // } 
+       //return true;
 }
 
 // import NextAuth from 'next-auth';
