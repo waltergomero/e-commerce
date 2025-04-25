@@ -31,16 +31,6 @@ export const authConfig = {
     else {
         return true;
         }
-
-      // const isLoggedIn = !!auth?.user;
-      // const isOnDashboard = nextUrl.pathname.startsWith('/dashboard');
-      // if (isOnDashboard) {
-      //   if (isLoggedIn) 
-      //     return true;
-      //   else 
-      //     return false; // Redirect unauthenticated users to login page  
-      // } 
-      //  return true;
     },
     
   },

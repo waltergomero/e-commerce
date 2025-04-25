@@ -47,8 +47,6 @@ export async function signInWithCredentials(formData) {
       {
        return {error: `User with email address ${email} doesn't exists.`};
       }
-      //const dbpassword = user.password;
-      //const id = user.id;
 
       await signIn("credentials", {email, password, redirect: false, });
       return { success: true, message:'Signed in successufully'};
