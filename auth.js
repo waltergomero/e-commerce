@@ -2,7 +2,7 @@ import NextAuth from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
 import GitHub from "next-auth/providers/github";
 import Google from "next-auth/providers/google";
-import { authConfig } from './auth.config';
+import { authConfig } from '@/auth.config';
 import { userSigninSchema } from "@/schemas/validation-schemas";
 import bcryptjs from "bcryptjs";
 import { PrismaAdapter } from "@auth/prisma-adapter";
@@ -105,6 +105,5 @@ export const { auth, signIn, signOut } = NextAuth({
          
             return session;
           },  
-            
         },
 });

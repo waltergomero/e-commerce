@@ -8,7 +8,7 @@ export const authConfig = {
     signIn: '/signin',
   },
   callbacks: {
-    authorized({ auth, request: {nextUrl}}) {
+    authorized({ auth, request}) {
                //check for session cart cookies
     if(!request.cookies.get('sessionCartId'))
         {

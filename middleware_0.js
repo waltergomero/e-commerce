@@ -1,16 +1,9 @@
-
-import { NextResponse } from "next/server";
-import NextAuth from 'next-auth';
-import { authConfig } from './auth.config';
-import GenerateChartCookie from '@/lib/generateCartCookie';
+import NextAuth from "next-auth";
+import { authConfig } from "./auth.config";
 
 const {auth} = NextAuth(authConfig,);
 
-export default  NextAuth(authConfig).auth; 
-
 export async function middleware(request) {
-
- 
 
   const {nextUrl} = request;
   const session = await auth();
@@ -29,9 +22,9 @@ export async function middleware(request) {
 
 }
 
-
 export const config = {
   //invoque middleware everywhere
   matcher: ['/((?!.+\\.[\\w]+$|_next).*)','/', '/(api|trpc)(.*)']
 };
 
+//export default  NextAuth(authConfig).auth; 
