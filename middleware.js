@@ -32,7 +32,7 @@ export async function middleware(request) {
 
 
   const {nextUrl} = request;
-  const session = await auth();
+  const session =  await auth();
 
  const path = nextUrl.pathname;
  const privatePath = ['/dashboard'];
