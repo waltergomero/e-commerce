@@ -10,3 +10,6 @@ npx prisma migrate dev --name add-create
 
 --seed
 npx tsx ./db/seed
+
+-- to view database tables
+npx prisma studio
