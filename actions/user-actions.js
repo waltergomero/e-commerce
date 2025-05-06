@@ -4,10 +4,11 @@ import { signIn, signOut } from '@/auth';
 import { AuthError } from 'next-auth';
 import bcryptjs from "bcryptjs";
 import { unstable_noStore as noStore } from 'next/cache';
-import { userSignupSchema, userSigninSchema, userUpdateSchema } from "@/schemas/validation-schemas";
+import { userSignupSchema, userSigninSchema, shippingAddressSchema } from "@/schemas/validation-schemas";
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import  prisma  from '@/prisma/prisma';
+import { auth } from '@/auth';
 
   //check if user exists using email
   export async function verifyIfUserExists(email) {
@@ -75,6 +76,22 @@ export async function signInWithCredentials(formData) {
         where: {id: id},
         include:{ accounts: true},
         });
+      const user = JSON.parse(JSON.stringify(_user));
+      return user
+    } catch (err) {
+      return({error: err + "Failed to fetch user!"});
+    }
+  };
+
+  export const getUserById = async (userId) => {
+    try {
+      const _user = await prisma.User.findFirst({
+        where: {id: userId},
+        });
+      
+        if(!_user)
+          throw new Error('User not found');
+        
       const user = JSON.parse(JSON.stringify(_user));
       return user
     } catch (err) {
@@ -151,4 +168,63 @@ export async function signInWithCredentials(formData) {
   
     revalidatePath(redirectPath);
     redirect(redirectPath);
+  }
+
+  export async function updateUserAddress( formData) {
+    try { 
+      const fullName = formData.get("fullName");
+      const streetAddress = formData.get("streetAddress");
+      const city = formData.get("city");
+      const state = formData.get("state");
+      const zipCode = formData.get("zipCode");
+      const country = formData.get("country");  
+
+      const validatedFields = shippingAddressSchema.safeParse({
+        fullName,
+        streetAddress,
+        city,
+        state,
+        zipCode,
+        country
+      });
+
+      if (!validatedFields.success) {
+        return {
+          error: "validation",
+          zodErrors: validatedFields.error.flatten().fieldErrors,
+          strapiErrors: null,
+          message: "Missing information on key fields.",
+        };
+      }
+
+      const session = await auth();
+
+      const user = await prisma.user.findFirst({
+        where: {id: session.user?.id}
+      }) ;
+
+      if(!user) throw new Error('User not found');
+
+      const address = {
+        fullName: fullName,
+        streetAddress: streetAddress,
+        city: city,
+        state: state,
+        zipCode: zipCode,
+        country: country,
+      }
+ 
+      await prisma.user.update({
+        where: {id: user.id},
+        data: {address}
+      })
+
+      return({
+        success: true,
+        message: `Address of ${fullName} was updated.`
+        })
+
+    } catch (error) {
+      return { error: `Failed to update user's address! ` + error.message};
+    }
   }

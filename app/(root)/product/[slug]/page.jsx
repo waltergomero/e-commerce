@@ -1,15 +1,18 @@
 import React, { Fragment } from 'react';
 import { Badge } from '@/components/ui/badge';
-import ProductPrice from '@/components/shared/product/product-price';
+import ProductPrice from '@/components/product/product-price';
 import { getProductBySlug } from '@/actions/product-actions';
 import { notFound } from 'next/navigation';
 import { Card, CardContent } from '@/components/ui/card';
-import ProductImages from '@/components/shared/product/product-images';
-import AddToCart from '@/components/shared/product/add-to-cart';
+import ProductImages from '@/components/product/product-images';
+import AddToCart from '@/components/product/add-to-cart';
+import { getMyCart } from '@/actions/cart-actions';
 
 const ProductDetailsPage = async ({params}) => {
     const {slug} = await params;
     const product = await getProductBySlug(slug);
+
+    const cart = await getMyCart();
 
     if(!product){
         notFound();
@@ -55,7 +58,9 @@ const ProductDetailsPage = async ({params}) => {
                             </div>
                             {product.stock > 0 && (
                                 <div className='flex-center'>
-                                    <AddToCart item={{
+                                    <AddToCart 
+                                        cart={cart}
+                                        item={{
                                         productId: product.id,
                                         product_name: product.product_name,
                                         slug: product.slug,

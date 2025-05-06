@@ -1,6 +1,6 @@
 import React from 'react';
 //import sampleData from '@/db/sample-data';
-import ProductList from '@/components/shared/product/product-list';
+import ProductList from '@/components/product/product-list';
 import { getLatestProducts } from '@/actions/product-actions';
 
 
