@@ -26,7 +26,7 @@ export const authConfig = {
           }
 
           const { email, password, dbpassword, id} = credentials;
-          console.log("email, password: ", email, password, dbpassword)
+          console.log("email, password: ", email, password, dbpassword, id)
           try {         
             // const user = await prisma.User.findFirst({where: {email: email}});
 
@@ -39,7 +39,8 @@ export const authConfig = {
                   const isMatch =  await bcryptjs.compare(password, dbpassword); 
 
                   if (isMatch) {
-                      return {
+                    console.log("match id: ", id)
+                      return {                    
                           id: id,
                           email: email
                       };

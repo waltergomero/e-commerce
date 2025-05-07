@@ -30,15 +30,18 @@ export const {handlers, auth, signIn, signOut } = NextAuth({
       token.name = existingUser.name;
       token.isadmin = existingUser.isadmin || false;
 
-      if(trigger === 'signIn' || trigger === 'signUp'){
+      if(trigger === 'signIn' || trigger === 'signUp') {
         const cookiesObject = await cookies();
         const sessionCartId = cookiesObject.get('sessionCartId').value;
-        console.log("sessionCartId: ", sessionCartId)
+       
+        let sessionCart ='';
+
         if(sessionCartId){
-          const sessionCart = await prisma.cart.findFirst({
+           sessionCart = await prisma.cart.findFirst({
             where: {sessionCartId}
           });
 
+          console.log("sessioncart: ", sessionCart)
           if(sessionCartId){
             //delete current user cart
             await prisma.cart.deleteMany({
@@ -46,10 +49,10 @@ export const {handlers, auth, signIn, signOut } = NextAuth({
             });
 
             //asign new cart 
-            await prisma.cart.update({
-              where: {id: sessionCart.id},
-              data: {userId: existingUser.id}
-            })
+            // await prisma.cart.update({
+            //   where: {id: sessionCart.id},
+            //   data: {userId: existingUser.id}
+            // })
           } 
         }
 

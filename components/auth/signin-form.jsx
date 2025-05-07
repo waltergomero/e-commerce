@@ -7,18 +7,19 @@ import {Input} from "@/components/ui/input";
 import {Label} from "@/components/ui/label";
 import SocialButtons from './social-buttons';
 import Link from 'next/link';
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { ArrowRightIcon, AtSymbolIcon,  KeyIcon, EyeIcon, EyeSlashIcon } from '@heroicons/react/24/solid';
 import { toast } from 'react-toastify';
 import { ZodErrors } from "@/components/common/zod-errors";
 import { signInWithCredentials } from '@/actions/user-actions';
-//import { useSearchParams } from 'next/navigation';
-
 
 
 const SignInForm = () => {
-
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectUri = searchParams.get('redirect_uri') || '/';
+  console.log("redirectUri: ", redirectUri);
+
   const [state, setState] = useState(null);
   const [visible, setVisible] = useState(false);
   const [password, setPassword] = useState("");
@@ -29,12 +30,13 @@ const SignInForm = () => {
     try {
         const formData = new FormData(event.currentTarget);
         const response = await signInWithCredentials(formData);
+        console.log("response: ", response)
         if (response.error) {
             setState(response);
             toast.error(response.error);
          } 
          else {
-             router.push("/dashboard");
+             router.push(redirectUri);
         }
     } catch (e) {
       toast.error("Check your Credentials: " + e);

@@ -35,19 +35,26 @@ export async function middleware(request) {
   const session =  await auth();
 
  const path = nextUrl.pathname;
- const privatePath = ['/dashboard'];
+ const privatePath = ['/dashboard/:path*', '/cart/:path*'];
  const isPrivatePath = privatePath.includes(path);
+console.log("path: ", path)
+console.log("isPrivatePath: ", isPrivatePath)
 
+const _private = privatePath.some((p) => p.test(path));
+
+console.log("_private: ", _private);
 
  if(isPrivatePath)
  {
-  if(session===null)
-      return NextResponse.redirect(new URL('/signin', nextUrl))
+  if(session===null){
+    const redirectUrl = `/signin?redirect_uri=${path}`;
+    return Response.redirect(new URL(redirectUrl, request.url), 302);
+    // return NextResponse.redirect(new URL('/signin', nextUrl))
+  }
  }
  return null;
 
 }
-
 
 export const config = {
   //invoque middleware everywhere
