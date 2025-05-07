@@ -4,11 +4,12 @@ import { signIn, signOut } from '@/auth';
 import { AuthError } from 'next-auth';
 import bcryptjs from "bcryptjs";
 import { unstable_noStore as noStore } from 'next/cache';
-import { userSignupSchema, userSigninSchema, shippingAddressSchema } from "@/schemas/validation-schemas";
+import { userSignupSchema, userSigninSchema, shippingAddressSchema, paymentMethodSchema} from "@/schemas/validation-schemas";
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import  prisma  from '@/prisma/prisma';
 import { auth } from '@/auth';
+import { PAYMENT_METHODS } from '@/lib/constants';
 
   //check if user exists using email
   export async function verifyIfUserExists(email) {
@@ -229,3 +230,43 @@ export async function signInWithCredentials(formData) {
       return { error: `Failed to update user's address! ` + error.message};
     }
   }
+
+  //update user payment method
+
+export async function updateUserPaymentMethod(formData) {
+  try {
+      const type = formData.get("paymentMethod");
+      console.log("PM", type)
+      const session = await auth();
+
+      const currentUser = await prisma.user.findFirst({
+          where: {id: session?.user?.id}
+      });
+
+      if(!currentUser) throw new Error("user not found")
+
+      const validatedFields = paymentMethodSchema.safeParse({
+        type
+      });
+
+      if (!validatedFields.success) {
+        return {
+          error: "validation",
+          zodErrors: validatedFields.error.flatten().fieldErrors,
+          strapiErrors: null,
+          message: "Please select a payment method",
+        };
+      }
+
+      await prisma.user.update({
+        where:{id: currentUser.id },
+        data: {paymentMethod: type}
+      });
+
+      return {success: true, message: 'User payment method was updated'};
+
+      
+  } catch (error) {
+      return {success: false, message: error.message};
+  }
+}

@@ -49,10 +49,10 @@ export const {handlers, auth, signIn, signOut } = NextAuth({
             });
 
             //asign new cart 
-            // await prisma.cart.update({
-            //   where: {id: sessionCart.id},
-            //   data: {userId: existingUser.id}
-            // })
+            await prisma.cart.update({
+              where: {id: sessionCart.id},
+              data: {userId: existingUser.id}
+            })
           } 
         }
 

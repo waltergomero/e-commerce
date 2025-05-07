@@ -31,19 +31,12 @@ export async function middleware(request) {
   }
 
 
-  const {nextUrl} = request;
-  const session =  await auth();
-
+ const {nextUrl} = request;
+ const session =  await auth();
  const path = nextUrl.pathname;
- const privatePath = ['/dashboard/:path*', '/cart/:path*'];
- const isPrivatePath = privatePath.includes(path);
-console.log("path: ", path)
-console.log("isPrivatePath: ", isPrivatePath)
 
-const _private = privatePath.some((p) => p.test(path));
-
-console.log("_private: ", _private);
-
+ const isPrivatePath = request.nextUrl.pathname.startsWith('/cart') || 
+                       request.nextUrl.pathname.startsWith('/dashboard');
  if(isPrivatePath)
  {
   if(session===null){

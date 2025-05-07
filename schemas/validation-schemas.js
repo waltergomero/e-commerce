@@ -1,3 +1,4 @@
+import { PAYMENT_METHODS } from '@/lib/constants';
 import { Currency } from 'lucide-react';
 import { z } from 'zod';
 
@@ -68,7 +69,13 @@ export const shippingAddressSchema = z.object({
 })
 
 
-
+export const paymentMethodSchema = z.object({
+  type: z.string().min(1, 'Payment method requiered'),
+  })
+  .refine((data) => PAYMENT_METHODS.includes(data.type), {
+  path: ['type'],
+  message: 'Invalid payment method'
+});
 
 
 

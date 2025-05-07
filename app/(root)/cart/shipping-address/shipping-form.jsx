@@ -1,8 +1,7 @@
 'use client';
 
-import React, {useState, useEffect } from 'react';
+import React, {useState, useEffect, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { useTransition } from 'react';
 import { toast } from 'react-toastify';
 import { shippingAddressDefaultValues } from '@/lib/constants';
 import { ZodErrors } from "@/components/common/zod-errors";
@@ -28,13 +27,15 @@ const ShippingAddressForm = ({address}) => {
             } 
         else {
               toast.success(response.message);
-              router.push('/payment-method')
+              router.push('/place-order')
             } 
 
     } catch (e) {
       toast.error("Check your Credentials: " + e);
     }
  }
+
+  const [isPending, startTransition] = useTransition();
 
   return (
     <>
@@ -91,8 +92,15 @@ const ShippingAddressForm = ({address}) => {
             </div>  
             </div>
             <div>
-                <Button className="w-full mt-4" size="sm" type="submit">
-                    Continue <ArrowRight className="h-5 w-5 text-gray-50" />
+                <Button className="w-full mt-4" size="sm" type="submit" disabled={isPending}>
+                  {
+                    isPending ? (
+                      <Loader className='w-4 h-4 animate-spin'/>
+                    ) : (
+                      <ArrowRight className='w-4 h-4'/>
+                    )
+                  }
+                  Continue
                 </Button>
             </div>
           </div>

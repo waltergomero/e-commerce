@@ -3,9 +3,10 @@
 import prisma from "@/prisma/prisma";
 import {cookies} from 'next/headers';
 import { auth } from '@/auth';
-import { cartItemSchema, insertCartSchema, shippingAddressSchema } from "@/schemas/validation-schemas";
+import { cartItemSchema, insertCartSchema, paymentMethodSchema, shippingAddressSchema } from "@/schemas/validation-schemas";
 import { convertToPlainObject, round2 } from "@/lib/utils";
 import { revalidatePath } from "next/cache";
+
 
 //calculate cart prices
 const calcPrice = (items) => {
@@ -200,3 +201,4 @@ export async function removeItemFromCart(productId) {
     }
 
 }
+
