@@ -15,6 +15,3 @@ npx tsx ./db/seed
 npx prisma studio
 
 
-add to env
-PAYMENT_METHODS = "PayPal, Stripe, CashOnDelivery"
-DEFAULT_PAYMENT_METHOD = "PayPal"

@@ -33,7 +33,7 @@ export const {handlers, auth, signIn, signOut } = NextAuth({
       if(trigger === 'signIn' || trigger === 'signUp') {
         const cookiesObject = await cookies();
         const sessionCartId = cookiesObject.get('sessionCartId').value;
-       
+        console.log("sessionCartId: ", sessionCartId)
         let sessionCart ='';
 
         if(sessionCartId){
@@ -42,7 +42,7 @@ export const {handlers, auth, signIn, signOut } = NextAuth({
           });
 
           console.log("sessioncart: ", sessionCart)
-          if(sessionCartId){
+          if(sessionCart){
             //delete current user cart
             await prisma.cart.deleteMany({
               where: {userId: existingUser.id}

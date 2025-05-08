@@ -19,7 +19,6 @@ export const metadata = {
 }
 
 const CartTable = ({cart}) => {
-    console.log('cart: ', cart)
     const router = useRouter();
     const [isPending, startTransition] = useTransition();
 
@@ -107,7 +106,7 @@ const CartTable = ({cart}) => {
                             </span>
                         </div>
                         <Button className='w-full' disabled={isPending} onClick={() =>
-                            startTransition(() => router.push('/shipping'))}>
+                            startTransition(() => router.push('/cart/shipping-address'))}>
                                 {isPending ? (
                                     <Loader className='w-4 h-4 animate-spin'/>
                                 ) : (

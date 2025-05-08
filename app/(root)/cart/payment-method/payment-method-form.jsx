@@ -30,7 +30,7 @@ const PaymentMethodForm = ({preferredPaymentMethod}) => {
               } 
           else {
                 toast.success(response.message);
-                router.push('/cart/payment-method')
+                router.push('/cart/place-order')
               } 
   
       } catch (e) {

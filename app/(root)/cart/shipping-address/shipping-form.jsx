@@ -27,7 +27,7 @@ const ShippingAddressForm = ({address}) => {
             } 
         else {
               toast.success(response.message);
-              router.push('/place-order')
+              router.push('/cart/payment-method')
             } 
 
     } catch (e) {

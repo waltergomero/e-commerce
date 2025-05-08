@@ -1,7 +1,6 @@
 import React from 'react';
 import { auth } from '@/auth';
 import { getMyCart } from '@/actions/cart-actions';
-import {Metada} from 'react';
 import { getUserById } from '@/actions/user-actions';
 import { redirect } from 'next/navigation';
 import ShippingAddressForm from './shipping-form';
