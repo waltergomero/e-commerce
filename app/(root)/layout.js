@@ -21,7 +21,7 @@ export default function RootLayout({ children }) {
                         newestOnTop={false}
                         closeOnClick
                         rtl={false}
-                        toastClassName={"text-sm"}
+                        toastClassName="text-md"
                         pauseOnFocusLoss
                         pauseOnHover/> 
           <Footer />
