@@ -12,6 +12,7 @@ import { ArrowRight, Loader } from 'lucide-react';
 import {updateUserAddress} from '@/actions/user-actions';
 
 const ShippingAddressForm = ({address}) => {
+  console.log("address: ", address)
   const router = useRouter();
   const [state, setState] = useState(null);
 
