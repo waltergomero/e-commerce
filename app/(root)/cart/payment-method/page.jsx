@@ -17,7 +17,7 @@ const PaymentMethodPage = async () => {
   if(!userId) throw new Error("User not found")
 
   const user = await getUserById(userId);
-  
+
   return (
     <div>
         <CheckoutSteps current={2}/>

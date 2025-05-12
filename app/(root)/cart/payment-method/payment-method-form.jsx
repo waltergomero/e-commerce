@@ -16,6 +16,13 @@ import { updateUserPaymentMethod } from '@/actions/user-actions';
 const PaymentMethodForm = ({preferredPaymentMethod}) => {
   const router = useRouter();
   const [state, setState] = useState(null);
+
+    const [selectedValue, setSelectedValue] = useState(preferredPaymentMethod);
+
+  const handleRadioChange = (event) => {
+    const value = event.target.value;
+    setSelectedValue(selectedValue === value ? null : value);
+  };
   
 
   async function onSubmit(event) {
@@ -38,6 +45,8 @@ const PaymentMethodForm = ({preferredPaymentMethod}) => {
       }
    }
 
+
+
  const [isPending, startTransition] = useTransition();
 
   return (
@@ -51,7 +60,12 @@ const PaymentMethodForm = ({preferredPaymentMethod}) => {
                 {
                   PAYMENT_METHODS.map((paymentmethod) => (
                     <div key={paymentmethod} className='flex items-center space-x-3 space-y-0'>
-                      <RadioGroupItem className='border-2 border-gray-300' id={paymentmethod} value={paymentmethod}/>
+                      <RadioGroupItem className='border-2 border-gray-300' 
+                      id={paymentmethod} 
+                      checked={paymentmethod === preferredPaymentMethod}
+                      value={selectedValue} 
+                      onChange={handleRadioChange}                                      
+                      />
                       {paymentmethod}
                     </div>
                   ))

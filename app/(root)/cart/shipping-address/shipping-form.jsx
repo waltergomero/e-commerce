@@ -52,6 +52,7 @@ const ShippingAddressForm = ({address}) => {
               <Input
                 name="fullName"
                 className="pl-6"
+                defaultValue={address.fullName}
                 type="text"
               />
              <ZodErrors error={state?.zodErrors?.fullName} />
@@ -61,6 +62,7 @@ const ShippingAddressForm = ({address}) => {
               <Input
                 name="streetAddress"
                 className="pl-6"
+                defaultValue={address.streetAddress}
                 type="text"
               />
              <ZodErrors error={state?.zodErrors?.streetAddress} />
@@ -69,26 +71,26 @@ const ShippingAddressForm = ({address}) => {
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
             <div className="col-span-2 sm:col-span-1">
                   <Label htmlFor="city" className='pb-2'>City:</Label>
-                  <Input type="text"  name="city" />
+                  <Input type="text"  name="city" defaultValue={address.city}/>
                   <ZodErrors error={state?.zodErrors?.city} />
                 </div>
                 
             <div className="col-span-2 sm:col-span-1">
               <Label htmlFor="state" className='pb-2'>State:</Label>
-              <Input type="text"  name="state" />
+              <Input type="text"  name="state" defaultValue={address.state}/>
               <ZodErrors error={state?.zodErrors?.state} />
             </div>  
             </div>
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
             <div className="col-span-2 sm:col-span-1">
                   <Label htmlFor="zipCode" className='pb-2'>Zip Code:</Label>
-                  <Input type="text"  name="zipCode" />
+                  <Input type="text"  name="zipCode" defaultValue={address.zipCode}/>
                   <ZodErrors error={state?.zodErrors?.zipCode} />
                 </div>
                 
             <div className="col-span-2 sm:col-span-1">
               <Label htmlFor="country" className='pb-2'>Country:</Label>
-              <Input type="text"  name="country" />
+              <Input type="text"  name="country" defaultValue={address.country}/>
               <ZodErrors error={state?.zodErrors?.country} />
             </div>  
             </div>
