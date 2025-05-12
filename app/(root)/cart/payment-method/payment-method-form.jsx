@@ -22,9 +22,9 @@ const PaymentMethodForm = ({preferredPaymentMethod}) => {
   async function onSubmit(event) {
       event.preventDefault();
       try {
-          const formData = new FormData(event.currentTarget);
+          const formData = new FormData();
+          formData.append("paymentmethod", selectedValue);
           const response = await updateUserPaymentMethod(formData);
-          console.log(response)
           if (response.error === "validation") {
             setState(response);
             toast.error(response.message);
@@ -39,7 +39,7 @@ const PaymentMethodForm = ({preferredPaymentMethod}) => {
       }
    }
 
-
+console.log("selectedValue", selectedValue)
 
  const [isPending, startTransition] = useTransition();
 
@@ -50,20 +50,19 @@ const PaymentMethodForm = ({preferredPaymentMethod}) => {
           <div className='space-y-6'>
           <div>
               <Label htmlFor='paymentMethod' className='pb-2'>Payment Methods:</Label>
-              <RadioGroup name="paymentMethod" className="flex flex-col space-y-2">
-                {PAYMENT_METHODS.map((paymentmethod) => (
-                  <div key={paymentmethod} className="flex items-center space-x-3 space-y-0">
-                    <RadioGroupItem
-                      className="border-2 border-gray-300"
+			          {PAYMENT_METHODS.map((paymentmethod) => (
+                  <div key={paymentmethod} className="flex items-center space-x-3 space-y-0 mb-4">
+                    <input 
+                      type="radio" 
+                      name={paymentmethod}
                       id={paymentmethod}
                       value={paymentmethod} // Set the value to the current payment method
                       checked={paymentmethod === selectedValue} // Compare with selectedValue
                       onChange={(e) => setSelectedValue(e.target.value)} // Update selectedValue
-                    />
-                    <Label htmlFor={paymentmethod}>{paymentmethod}</Label>
+                      />
+                      <Label htmlFor={paymentmethod}>{paymentmethod}</Label>
                   </div>
                 ))}
-              </RadioGroup>
 
              <ZodErrors error={state?.zodErrors?.paymentMethod} />
             </div>

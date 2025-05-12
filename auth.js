@@ -33,7 +33,7 @@ export const {handlers, auth, signIn, signOut } = NextAuth({
 
       if(trigger === 'signIn' || trigger === 'signUp') {
         
-        await generateSessionCart();
+        await generateSessionCart(existingUser);
       }
 
       return token;

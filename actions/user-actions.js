@@ -236,8 +236,7 @@ export async function signInWithCredentials(formData) {
 
 export async function updateUserPaymentMethod(formData) {
   try {
-      const type = formData.get("paymentMethod");
-      console.log("PM", type)
+      const type = formData.get("paymentmethod");
       const session = await auth();
 
       const currentUser = await prisma.user.findFirst({
