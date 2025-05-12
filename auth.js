@@ -32,6 +32,7 @@ export const {handlers, auth, signIn, signOut } = NextAuth({
       token.isadmin = existingUser.isadmin || false;
 
       if(trigger === 'signIn' || trigger === 'signUp') {
+        
         await generateSessionCart();
       }
 
