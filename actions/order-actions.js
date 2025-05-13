@@ -19,6 +19,7 @@ export async function createOrder(){
         const user = await getUserById(userId);
 
         const cart = await getMyCart();
+
         if(!cart || cart.items.length === 0){
             return{success:false, 
                 message: 'Your cart is empty', 
@@ -50,9 +51,9 @@ export async function createOrder(){
             taxPrice: Number(cart.taxPrice),
             totalPrice: Number(cart.totalPrice),
         })
-        console.log("order:", order)
 
-        const insertedOrderId = await prisma?.$transaction(async (tx) => {
+        //create a transaction
+        const insertedOrderId = await prisma.$transaction(async (tx) => {
             //create order
             const insertedOrder = await tx.order.create({ data: order });
              console.log("inserted Order: ", insertedOrder)
@@ -61,14 +62,19 @@ export async function createOrder(){
                 console.log("item: ", item)
                 await tx.orderItem.create({
                     data: {
-                        ...item,
-                        price: item.price,
-                        orderid: insertedOrder.id
+                        orderId: insertedOrder.id,
+                        productId: item.productId,
+                        quantity: item.quantity,
+                        price:  item.price,
+                        product_name: item.product_name,
+                        slug: item.slug,
+                        image: item.image,
                     }
                 });
             }
             //clear cart
             await tx.cart.update({
+                where: {id: cart.id},
                 data: {
                     items:[],
                     totalPrice:0,
