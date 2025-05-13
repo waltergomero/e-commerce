@@ -15,3 +15,19 @@ npx tsx ./db/seed
 npx prisma studio
 
 
+
+
+<RadioGroup name="paymentMethod" className="flex flex-col space-y-2">
+  {PAYMENT_METHODS.map((paymentmethod) => (
+    <div key={paymentmethod} className="flex items-center space-x-3 space-y-0">
+      <RadioGroupItem
+        className="border-2 border-gray-300"
+        id={paymentmethod}
+        value={paymentmethod} // Set the value to the current payment method
+        checked={paymentmethod === selectedValue} // Compare with selectedValue
+        onChange={(e) => setSelectedValue(e.target.value)} // Update selectedValue
+      />
+      <Label htmlFor={paymentmethod}>{paymentmethod}</Label>
+    </div>
+  ))}
+</RadioGroup>
