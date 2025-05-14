@@ -21,33 +21,3 @@ npx prisma studio
 
 
 
-AUTH_SECRET="2OKJjXb6OgCjpZRLaZGrE3Bni8S3OQ7tLcAG6RmDCWw=" # Added by `npx auth`. Read more: https://cli.authjs.dev
-
-
-NEXT_PUBLIC_APP_NAME = "Luisa's Store"
-
-NEXT_PUBLIC_APP_DESCRIPTION = "Your one-stop shop for everything fabulous done by hand!"
-
-NEXT_PUBLIC_SERVER_URL = "http://localhost:3000"
-
-DATABASE_URL=postgres://neondb_owner:npg_Bfdubl96RTQr@ep-icy-truth-a46u30o8-pooler.us-east-1.aws.neon.tech/neondb?sslmode=require
-
-
-
-NEXTAUTH_URL="http://localhost:3000"
-
-NEXTAUTH_URL_INTERNAK="http://localhost:3000"
-
-PAYMENT_METHODS = "PayPal, Stripe, CashOnDelivery"
-DEFAULT_PAYMENT_METHOD = "PayPal"
-
-AUTH_GOOGLE_ID=750561459311-aveog3gpg1du9v4brusd463dcdtscm29.apps.googleusercontent.com
-AUTH_GOOGLE_SECRET=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
-
-AUTH_GITHUB_ID=Ov23linfZr33al5mFqSj
-AUTH_GITHUB_SECRET=032a23e39ade8d25f18e471bb628da9072ceae7f
-
-
-PAYPAL_API_URL="https://api-m.sandbox.paypal.com"
-PAYPAL_CLIENT_ID="AVFlUAzmcGceeylWrUmSDbaqsSD-Gz0AdiGP1H3aX1krUUN_yMOTNET2TrXeuY1ehlRmNChrbd8iJZWu"
-PAYPAL_APP_SECRET="EJmeqwG9bhXYycbuCuADuGXN_OW6e2nIzjASgw5TtcStKYx23jcCDiizTeoFVFgBDc-UYhHjVTz7_Yav"
