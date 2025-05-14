@@ -7,6 +7,8 @@ import { getUserById } from "./user-actions";
 import { insertOrderSchema } from "@/schemas/validation-schemas";
 import prisma from "@/prisma/prisma";
 import { convertToPlainObject } from "@/lib/utils";
+import {paypal} from '@/lib/paypal';
+import { revalidatePath } from "next/cache";
 
 
 export async function createOrder(){
@@ -124,29 +126,14 @@ export async function getOrderById(orderId) {
     return { success: false, data: null, message: error.message };
   }
 }
-// export async function getOrderById(orderId) {
-//     console.log("orderid: ", orderId)
-//   const data = await prisma.order.findFirst({
-//     where: {
-//       id: orderId,
-//     },
-//     include: {
-//       orderitems: true,
-//       user: { select: { name: true, email: true } },
-//     },
-//   });
 
-//   return convertToPlainObject(data);
-// }
 
 // Create new paypal order
 export async function createPayPalOrder(orderId) {
   try {
     // Get order from database
-    const order = await prisma.order.findFirst({
-      where: {
-        id: orderId,
-      },
+    const order = await prisma.order.findUnique({
+      where: { id: orderId, },
     });
 
     if (order) {
@@ -175,18 +162,15 @@ export async function createPayPalOrder(orderId) {
       throw new Error('Order not found');
     }
   } catch (error) {
-    return { success: false, message: formatError(error) };
+    return { success: false, message: error.message + 'calling paypal' };
   }
 }
 
 // Approve paypal order and update order to paid
-export async function approvePayPalOrder(
-  orderId,
-  data,
-) {
+export async function approvePayPalOrder( orderId, data,) {
   try {
     // Get order from database
-    const order = await prisma.order.findFirst({
+    const order = await prisma.order.findUnique({
       where: {
         id: orderId,
       },
@@ -221,6 +205,181 @@ export async function approvePayPalOrder(
     return {
       success: true,
       message: 'Your order has been paid',
+    };
+  } catch (error) {
+    return { success: false, message: formatError(error) };
+  }
+}
+
+// Update order to paid
+export async function updateOrderToPaid({  orderId,  paymentResult,}) {
+  // Get order from database
+  const order = await prisma.order.findFirst({
+    where: { id: orderId, },
+    include: {
+      orderitems: true,
+    },
+  });
+
+  if (!order) throw new Error('Order not found');
+
+  if (order.isPaid) throw new Error('Order is already paid');
+
+  // Transaction to update order and account for product stock
+  await prisma.$transaction(async (tx) => {
+    // Iterate over products and update stock
+    for (const item of order.orderitems) {
+      await tx.product.update({
+        where: { id: item.productId },
+        data: { stock: { increment: -item.qty } },
+      });
+    }
+
+    // Set the order to paid
+    await tx.order.update({
+      where: { id: orderId },
+      data: {
+        isPaid: true,
+        paidAt: new Date(),
+        paymentResult,
+      },
+    });
+  });
+
+  // Get updated order after transaction
+  const updatedOrder = await prisma.order.findFirst({
+    where: { id: orderId },
+    include: {
+      orderitems: true,
+      user: { select: { name: true, email: true } },
+    },
+  });
+
+  if (!updatedOrder) throw new Error('Order not found');
+
+  sendPurchaseReceipt({
+    order: {
+      ...updatedOrder,
+      shippingAddress: updatedOrder.shippingAddress,
+      paymentResult: updatedOrder.paymentResult,
+    },
+  });
+}
+
+// Get user's orders
+export async function getMyOrders({  limit = PAGE_SIZE,  page,}) {
+  const session = await auth();
+  if (!session) throw new Error('User is not authorized');
+
+  const data = await prisma.order.findMany({
+    where: { userId: session?.user?.id },
+    orderBy: { createdAt: 'desc' },
+    take: limit,
+    skip: (page - 1) * limit,
+  });
+
+  const dataCount = await prisma.order.count({
+    where: { userId: session?.user?.id },
+  });
+
+  return {
+    data,
+    totalPages: Math.ceil(dataCount / limit),
+  };
+}
+
+// type SalesDataType = {
+//   month: string;
+//   totalSales: number;
+// }[];
+
+// Get sales data and order summary
+export async function getOrderSummary() {
+  // Get counts for each resource
+  const ordersCount = await prisma.order.count();
+  const productsCount = await prisma.product.count();
+  const usersCount = await prisma.user.count();
+
+  // Calculate the total sales
+  const totalSales = await prisma.order.aggregate({
+    _sum: { totalPrice: true },
+  });
+
+  // Get monthly sales
+  const salesDataRaw = await prisma.$queryRaw<
+    Array<{ month, totalSales }>
+  `SELECT to_char("createdAt", 'MM/YY') as "month", sum("totalPrice") as "totalSales" FROM "Order" GROUP BY to_char("createdAt", 'MM/YY')`;
+
+  const salesData = salesDataRaw.map((entry) => ({
+    month: entry.month,
+    totalSales: Number(entry.totalSales),
+  }));
+
+  // Get latest sales
+  const latestSales = await prisma.order.findMany({
+    orderBy: { createdAt: 'desc' },
+    include: {
+      user: { select: { name: true } },
+    },
+    take: 6,
+  });
+
+  return {
+    ordersCount,
+    productsCount,
+    usersCount,
+    totalSales,
+    latestSales,
+    salesData,
+  };
+}
+
+// Get all orders
+export async function getAllOrders({
+  limit = PAGE_SIZE,
+  page,
+  query,
+}) {
+  const queryFilter =
+    query && query !== 'all'
+      ? {
+          user: {
+            name: {
+              contains: query,
+              mode: 'insensitive',
+            },
+          },
+        }
+      : {};
+
+  const data = await prisma.order.findMany({
+    where: {
+      ...queryFilter,
+    },
+    orderBy: { createdAt: 'desc' },
+    take: limit,
+    skip: (page - 1) * limit,
+    include: { user: { select: { name: true } } },
+  });
+
+  const dataCount = await prisma.order.count();
+
+  return {
+    data,
+    totalPages: Math.ceil(dataCount / limit),
+  };
+}
+
+// Delete an order
+export async function deleteOrder(id) {
+  try {
+    await prisma.order.delete({ where: { id } });
+
+    revalidatePath('/admin/orders');
+
+    return {
+      success: true,
+      message: 'Order deleted successfully',
     };
   } catch (error) {
     return { success: false, message: formatError(error) };

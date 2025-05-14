@@ -18,7 +18,7 @@ const OrderDetailsPage = async ({params}) => {
     
   return (
     <div>
-      <OrderDetailsTable order={order}/>
+      <OrderDetailsTable order={order} paypalClientId={process.env.PAYPAL_CLIENT_ID || 'sb'}/>
     </div>
   )
 }
