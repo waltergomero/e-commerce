@@ -117,6 +117,7 @@ export async function getOrderById(orderId) {
       },
     });
 
+
     if (!order) {
       return { success: false, data: null, message: 'Order not found' };
     }
@@ -179,6 +180,7 @@ export async function approvePayPalOrder( orderId, data,) {
     if (!order) throw new Error('Order not found');
 
     const captureData = await paypal.capturePayment(data.orderID);
+    console.log("capture data: ", captureData)
 
     if (
       !captureData ||
@@ -207,7 +209,7 @@ export async function approvePayPalOrder( orderId, data,) {
       message: 'Your order has been paid',
     };
   } catch (error) {
-    return { success: false, message: formatError(error) };
+    return { success: false, message: error.message };
   }
 }
 
@@ -221,20 +223,22 @@ export async function updateOrderToPaid({  orderId,  paymentResult,}) {
     },
   });
 
+  console.log("updateOrderToPaid: ", order)
+
   if (!order) throw new Error('Order not found');
-
+console.log("step1: ")
   if (order.isPaid) throw new Error('Order is already paid');
-
+console.log("step2: ")
   // Transaction to update order and account for product stock
   await prisma.$transaction(async (tx) => {
     // Iterate over products and update stock
     for (const item of order.orderitems) {
       await tx.product.update({
         where: { id: item.productId },
-        data: { stock: { increment: -item.qty } },
+        data: { stock: { increment: -item.quantity } },
       });
     }
-
+console.log("step3: ")
     // Set the order to paid
     await tx.order.update({
       where: { id: orderId },
@@ -245,7 +249,7 @@ export async function updateOrderToPaid({  orderId,  paymentResult,}) {
       },
     });
   });
-
+console.log("step4: ")
   // Get updated order after transaction
   const updatedOrder = await prisma.order.findFirst({
     where: { id: orderId },
@@ -254,9 +258,10 @@ export async function updateOrderToPaid({  orderId,  paymentResult,}) {
       user: { select: { name: true, email: true } },
     },
   });
-
+console.log("updatedOrder: ", updatedOrder)
+console.log("step5: ")
   if (!updatedOrder) throw new Error('Order not found');
-
+console.log("step6: ")
   sendPurchaseReceipt({
     order: {
       ...updatedOrder,
@@ -264,6 +269,7 @@ export async function updateOrderToPaid({  orderId,  paymentResult,}) {
       paymentResult: updatedOrder.paymentResult,
     },
   });
+  console.log("step7: ")
 }
 
 // Get user's orders
@@ -382,7 +388,7 @@ export async function deleteOrder(id) {
       message: 'Order deleted successfully',
     };
   } catch (error) {
-    return { success: false, message: formatError(error) };
+    return { success: false, message: error.message};
   }
 }
 
@@ -395,7 +401,7 @@ export async function updateOrderToPaidCOD(orderId) {
 
     return { success: true, message: 'Order marked as paid' };
   } catch (error) {
-    return { success: false, message: formatError(error) };
+    return { success: false, message: error.message };
   }
 }
 
@@ -427,6 +433,6 @@ export async function deliverOrder(orderId) {
       message: 'Order has been marked delivered',
     };
   } catch (error) {
-    return { success: false, message: formatError(error) };
+    return { success: false, message: error.message };
   }
 }

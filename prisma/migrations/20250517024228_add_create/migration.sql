@@ -34,7 +34,9 @@ CREATE TABLE "User" (
     "address" JSON,
     "paymentMethod" TEXT,
     "createdAt" TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "updatedAt" TIMESTAMP(3),
+    "created_by" TEXT,
+    "updated_by" TEXT,
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("id")
 );

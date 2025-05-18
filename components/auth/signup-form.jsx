@@ -25,6 +25,7 @@ const SignUpForm = () => {
     try {
         const formData = new FormData(event.currentTarget);
         const response = await createUser(formData, true);
+        console.log("response: ", response)
         if (response.error === "validation") {
           setState(response);
           toast.error(response.message);
@@ -32,11 +33,15 @@ const SignUpForm = () => {
         else if (response.error==="userexists") {
               toast.error(response.message);
             } 
-        else {
-              toast.error(response.error);
-            } 
+        else if(response.success) {
+           toast.success(response.message);
+            router.push('/signin')
+        }
+        else{
+          toast.error(response.error);
+        }
     } catch (e) {
-      toast.error("Check your Credentials: " + e);
+      toast.error("Check your Credentials: " + e.message);
     }
  }
 

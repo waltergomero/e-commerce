@@ -106,6 +106,7 @@ export async function signInWithCredentials(formData) {
   //create an account
   export async function createUser( formData, register=false) {
     const redirectPath = register ? "/signin" : "/admin/users";
+    console.log("redirect path: ", redirectPath)
     try {
       const _isAdmin = formData.get("isadmin");
       const first_name = formData.get("first_name");
@@ -161,16 +162,17 @@ export async function signInWithCredentials(formData) {
         created_by: created_by,
         updated_by: updated_by,
       };
-  
       await prisma.User.create({data:newUser});
+
+      return({
+        success: true,
+        message: `User ${first_name} ${last_name} was created. Please signin using your credentials.`
+        })
     }
   
     } catch (err) {
-      return { error: "Failed to insert new user!" + err};
+      return { error: "Failed to insert new user!" + err.message};
     }
-  
-    revalidatePath(redirectPath);
-    redirect(redirectPath);
   }
 
   export async function updateUserAddress( formData) {
