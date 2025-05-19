@@ -4,7 +4,7 @@ import { signIn, signOut } from '@/auth';
 import { AuthError } from 'next-auth';
 import bcryptjs from "bcryptjs";
 import { unstable_noStore as noStore } from 'next/cache';
-import { userSignupSchema, userSigninSchema, shippingAddressSchema, paymentMethodSchema} from "@/schemas/validation-schemas";
+import { userSignupSchema, userSigninSchema, shippingAddressSchema, paymentMethodSchema, updateProfileSchema} from "@/schemas/validation-schemas";
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import  prisma  from '@/prisma/prisma';
@@ -87,8 +87,12 @@ export async function signInWithCredentials(formData) {
   };
 
   export const getUserById = async (userId) => {
+
     try {
-      const _user = await prisma.User.findFirst({
+      if(!userId)
+          throw new Error('User id was not found');
+
+      const _user = await prisma.User.findUnique({
         where: {id: userId},
         });
       
@@ -270,5 +274,146 @@ export async function updateUserPaymentMethod(formData) {
       
   } catch (error) {
       return {success: false, message: error.message};
+  }
+}
+
+// Update the user profile
+export async function updateUserProfile(formData) {
+  try {
+    const id = formData.get("id");
+    const first_name = formData.get("first_name");
+    const last_name = formData.get("last_name");
+    const name = formData.get("first_name") + ", " + formData.get("last_name");
+    const email = formData.get("email");
+    const password = formData.get("password");
+    const updated_by =  name;
+  
+
+      const validatedFields = updateProfileSchema.safeParse({
+        first_name,
+        last_name,
+      });
+
+    if (!validatedFields.success) {
+        return {
+          error: "validation",
+          zodErrors: validatedFields.error.flatten().fieldErrors,
+          strapiErrors: null,
+          message: "Missing information on key fields.",
+        };
+      }
+    else{
+        const currentUser = await prisma.user.findFirst({
+          where: {
+            id: id,
+          },
+        });
+
+        if (!currentUser) throw new Error('User not found');
+
+        let query = {
+            first_name: first_name,
+            last_name: last_name,
+            name: name,
+            email: email,
+            updated_by: updated_by
+          };
+
+        if(password){
+            const salt = await bcryptjs.genSalt(10);
+            const hashedPassword = await bcryptjs.hash(password, salt); 
+            let _password = {password: hashedPassword}
+            Object.assign(query, _password)
+          }
+
+
+        await prisma.user.update({
+          where: {
+            id: currentUser.id,
+          },
+          data: query,
+        });
+
+        return {
+          success: true,
+          message: 'User profile was updated successfully',
+        };
+      }
+  } catch (error) {
+    return { success: false, message: (error.message) };
+  }
+}
+
+// Get all the users
+export async function getAllUsers({
+  limit = PAGE_SIZE,
+  page,
+  query,
+}) {
+  const queryFilter =
+    query && query !== 'all'
+      ? {
+          name: {
+            contains: query,
+            mode: 'insensitive',
+          },
+        }
+      : {};
+
+  const data = await prisma.user.findMany({
+    where: {
+      ...queryFilter,
+    },
+    orderBy: { createdAt: 'desc' },
+    take: limit,
+    skip: (page - 1) * limit,
+  });
+
+  const dataCount = await prisma.user.count();
+
+  return {
+    data,
+    totalPages: Math.ceil(dataCount / limit),
+  };
+}
+
+// Delete a user
+export async function deleteUser(id) {
+  try {
+    await prisma.user.delete({ where: { id } });
+
+    revalidatePath('/dashboard/user');
+
+    return {
+      success: true,
+      message: 'User deleted successfully',
+    };
+  } catch (error) {
+    return {
+      success: false,
+      message: formatError(error),
+    };
+  }
+}
+
+// Update a user
+export async function updateUser(user) {
+  try {
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        name: user.name,
+        role: user.role,
+      },
+    });
+
+    revalidatePath('/dashboard/user');
+
+    return {
+      success: true,
+      message: 'User updated successfully',
+    };
+  } catch (error) {
+    return { success: false, message: error.message };
   }
 }

@@ -3,7 +3,6 @@
 import React, {useState, useEffect, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-toastify';
-import { shippingAddressDefaultValues } from '@/lib/constants';
 import { ZodErrors } from "@/components/common/zod-errors";
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
@@ -12,7 +11,6 @@ import { ArrowRight, Loader } from 'lucide-react';
 import {updateUserAddress} from '@/actions/user-actions';
 
 const ShippingAddressForm = ({address}) => {
-  console.log("address: ", address)
   const router = useRouter();
   const [state, setState] = useState(null);
 

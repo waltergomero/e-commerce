@@ -9,6 +9,7 @@ import prisma from "@/prisma/prisma";
 import { convertToPlainObject } from "@/lib/utils";
 import {paypal} from '@/lib/paypal';
 import { revalidatePath } from "next/cache";
+import { PAGE_SIZE } from '@/lib/constants';
 
 
 export async function createOrder(){
@@ -277,12 +278,16 @@ export async function getMyOrders({  limit = PAGE_SIZE,  page,}) {
   const session = await auth();
   if (!session) throw new Error('User is not authorized');
 
+   console.log("user id : ", session?.user?.id)
+
   const data = await prisma.order.findMany({
     where: { userId: session?.user?.id },
     orderBy: { createdAt: 'desc' },
     take: limit,
     skip: (page - 1) * limit,
   });
+
+  console.log("data: ", data)
 
   const dataCount = await prisma.order.count({
     where: { userId: session?.user?.id },
