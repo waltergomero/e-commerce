@@ -1,6 +1,8 @@
 import { Geist, Geist_Mono, Inter } from "next/font/google";
 import "@/assets/styles/globals.css";
 import { ThemeProvider } from "next-themes";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -34,7 +36,18 @@ export default function RootLayout({ children }) {
           enableSystem 
           disableTransitionOnChange>
             {children}
-          </ThemeProvider>   
+          </ThemeProvider> 
+          <ToastContainer 
+            theme="colored"
+            position="top-center"
+            autoClose={3000}
+            hideProgressBar={false}
+            newestOnTop={false}
+            closeOnClick
+            rtl={false}
+            toastClassName="text-md"
+            pauseOnFocusLoss
+            pauseOnHover/>   
       </body>
     </html>
   );

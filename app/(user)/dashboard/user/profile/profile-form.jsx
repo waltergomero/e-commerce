@@ -4,7 +4,6 @@ import React, { Fragment, useState, useEffect  } from 'react';
 import {Button} from "@/components/ui/button";
 import {Input} from "@/components/ui/input";
 import {Label} from "@/components/ui/label";
-import Link from 'next/link';
 import { useRouter } from "next/navigation";
 import { ArrowRightIcon, AtSymbolIcon,  KeyIcon, EyeIcon, EyeSlashIcon, UserIcon } from '@heroicons/react/24/solid';
 import { toast } from 'react-toastify';
@@ -68,7 +67,7 @@ const UserProfileForm = (user) => {
           name="email"
           className="pl-6"
           type="email"
-          disabled
+          readOnly={true}
           defaultValue={data.email}
           autoComplete="email"
         />

@@ -67,9 +67,10 @@ export async function signInWithCredentials(formData) {
   }
 
   //sign user out
-  export async function signoutUser() {
-    await signOut()
-    
+  export async function signOutUser() {
+    console.log("signing out user");
+    await signOut();
+
   }
 
   //get user data by ID

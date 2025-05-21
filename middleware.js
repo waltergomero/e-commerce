@@ -31,13 +31,14 @@ export async function middleware(request) {
   const path = nextUrl.pathname;
 
   //define private paths
-  const privatePaths = ['/cart', '/dashboard'];
+  const privatePaths = ['/cart', '/dashboard', '/admin'];
 
   // Check if the path is private
   const isPrivatePath = privatePaths.some((privatePath) => path.startsWith(privatePath));
 
   if (isPrivatePath && !session) {
     const redirectUrl = `/signin?redirect_uri=${encodeURIComponent(path)}`;
+    console.log(`Redirecting to: ${redirectUrl}`);
     return NextResponse.redirect(new URL(redirectUrl, request.url), 302);
   }
 
