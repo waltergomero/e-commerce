@@ -6,7 +6,8 @@ import { getMyCart } from "./cart-actions";
 import { getUserById } from "./user-actions";
 import { insertOrderSchema } from "@/schemas/validation-schemas";
 import prisma from "@/prisma/prisma";
-import { convertToPlainObject } from "@/lib/utils";
+import { Prisma } from "@prisma/client";
+import { convertToPlainObject, formatNumber  } from "@/lib/utils";
 import {paypal} from '@/lib/paypal';
 import { revalidatePath } from "next/cache";
 import { PAGE_SIZE } from '@/lib/constants';
@@ -317,10 +318,12 @@ export async function getOrderSummary() {
   });
 
   // Get monthly sales
-  const salesDataRaw = await prisma.$queryRaw<
-    Array<{ month, totalSales }>
-  `SELECT to_char("createdAt", 'MM/YY') as "month", sum("totalPrice") as "totalSales" FROM "Order" GROUP BY to_char("createdAt", 'MM/YY')`;
+  const salesDataRaw = await prisma.$queryRaw(Prisma.sql`
+    SELECT to_char("createdAt", 'MM/YY') as "month", sum("totalPrice") as "totalSales" 
+    FROM "Order" GROUP BY to_char("createdAt", 'MM/YY')
+  `);
 
+  // Convert sales data to the desired format
   const salesData = salesDataRaw.map((entry) => ({
     month: entry.month,
     totalSales: Number(entry.totalSales),
