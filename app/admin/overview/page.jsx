@@ -17,7 +17,7 @@ import { requireAdmin } from '@/lib/auth-guard';
 
 
 export const metadata = {
-    title: 'Admin Dashboard'
+    title: 'Admin Overview'
 }
 
 const AdminOverviewPage = async () => {

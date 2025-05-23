@@ -417,6 +417,8 @@ export async function updateOrderToPaidCOD(orderId) {
 // Update COD order to delivered
 export async function deliverOrder(orderId) {
   try {
+    console.log("orderId: ", orderId)
+    if (!orderId) throw new Error('Order ID is required');
     const order = await prisma.order.findFirst({
       where: {
         id: orderId,
