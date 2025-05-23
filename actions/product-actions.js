@@ -3,6 +3,7 @@
 import  prisma  from '@/prisma/prisma';
 import { convertToPlainObject } from "@/lib/utils";
 import { LATEST_PRODUCTS_LIMIT, PAGE_SIZE } from '@/lib/constants';
+import { productSchema,updateProductSchema } from '@/schemas/validation-schemas';
 
 //get all products
 export async function getLatestProducts() {
@@ -125,8 +126,17 @@ export async function deleteProduct(id) {
 // Create a product
 export async function createProduct(data) {
   try {
-    const product = insertProductSchema.parse(data);
-    await prisma.product.create({ data: product });
+    const validatedFields = productSchema.safeParse(data);
+
+    if (!validatedFields.success) {
+      return {
+        error: "Missing information on key fields.",
+        zodErrors: validatedFields.error.flatten().fieldErrors,
+        strapiErrors: null,
+      };
+    }
+
+    await prisma.product.create({ data: validatedFields });
 
     revalidatePath('/admin/products');
 
@@ -135,7 +145,7 @@ export async function createProduct(data) {
       message: 'Product created successfully',
     };
   } catch (error) {
-    return { success: false, message: formatError(error) };
+    return { success: false, message: error.message };
   }
 }
 
@@ -143,6 +153,14 @@ export async function createProduct(data) {
 export async function updateProduct(data) {
   try {
     const product = updateProductSchema.parse(data);
+
+    if (!product.success) {
+      return {
+        error: "Missing information on key fields.",
+        zodErrors: validatedFields.error.flatten().fieldErrors,
+        strapiErrors: null,
+      };
+    }
     const productExists = await prisma.product.findFirst({
       where: { id: product.id },
     });

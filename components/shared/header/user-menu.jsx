@@ -19,7 +19,7 @@ const UserButton = () => {
   if (!session) {
     return (
       <Button asChild>
-        <Link href='/sign-in'>
+        <Link href='/signin'>
           <UserIcon /> Sign In
         </Link>
       </Button>
