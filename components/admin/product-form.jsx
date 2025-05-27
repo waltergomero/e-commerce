@@ -77,15 +77,17 @@ const ProductForm = ({  type,  product,  productId,}) => {
     try {
       console.log("isFeatured: ", isFeatured);
           const formData = new FormData(event.currentTarget);
-          formData.append('isfeatured', isFeatured);        
-          if(images.length > 0){
-            const imageNames = images.map(img => img.name);
+          formData.append('isfeatured', isFeatured);    
+
+          if(images.length > 0) {
+              const imageNames = Array.from(images.map(img => img.name));
               formData.append("images", imageNames);
             }         
           if (isFeatured === true) {
-            const bannerName = banner.map(img => img.name);
+              const bannerName = banner.map(img => img.name);
               formData.append("banner", bannerName);
             }
+            
           if(isFeatured === true && banner.length === 0) {
               toast.error("Please upload a banner image for featured products.");
               return;

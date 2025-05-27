@@ -32,7 +32,6 @@ export const authConfig = {
           }
 
           const { email, password, dbpassword, id} = credentials;
-          console.log("email, password: ", email, password, dbpassword, id)
           try {         
              if(!dbpassword)
              {
