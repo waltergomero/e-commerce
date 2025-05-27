@@ -81,11 +81,13 @@ const UserButton = () => {
           )}
 
           <DropdownMenuItem className='p-0 mb-1'>
+            {/* <form onSubmit={signOutHandler} className='w-full'> */}
             <form onSubmit={signOutHandler} className='w-full'>
               <Button type='submit'
                 className='w-full py-4 px-2 h-4 justify-start'
                 variant='ghost'
-              >
+                onClick={() => signOut()}
+                 >
                 Sign Out
               </Button>
             </form>
