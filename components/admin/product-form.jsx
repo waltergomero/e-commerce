@@ -101,6 +101,9 @@ const ProductForm = ({  type,  product,  productId,}) => {
               setState(response);
               toast.error(response.message);
                 } 
+            else if (response.error === "already_exists") { 
+              toast.error("Failed adding a product: " + response.message);
+            }
             else if(response.success === false) {
               toast.error("Failed adding a product: " + response.message);
             }

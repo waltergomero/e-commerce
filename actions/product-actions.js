@@ -128,13 +128,24 @@ export async function deleteProduct(id) {
 export async function createProduct(data) {
   try {
     const validatedFields = productSchema.safeParse(data);
-   console.log("data latest: ", data);
+    console.log("data latest: ", data);
     if (!validatedFields.success) {
       return {
         error: "validation",
         zodErrors: validatedFields.error.flatten().fieldErrors,
         strapiErrors: null,
         message: "Missing information on key fields.",
+      };
+    }
+    //check if product with same slug exists
+    const existingProduct = await prisma.product.findFirst({
+      where: { slug: data.slug },
+    });
+    
+    if (existingProduct) {
+      return {
+        error: "already_exists",
+        message: "Product with this slug already exists.",
       };
     }
 
