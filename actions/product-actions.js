@@ -4,6 +4,7 @@ import  prisma  from '@/prisma/prisma';
 import { convertToPlainObject } from "@/lib/utils";
 import { LATEST_PRODUCTS_LIMIT, PAGE_SIZE } from '@/lib/constants';
 import { productSchema,updateProductSchema } from '@/schemas/validation-schemas';
+import { revalidatePath } from 'next/cache';
 
 //get all products
 export async function getLatestProducts() {
@@ -127,16 +128,17 @@ export async function deleteProduct(id) {
 export async function createProduct(data) {
   try {
     const validatedFields = productSchema.safeParse(data);
-
+   console.log("data latest: ", data);
     if (!validatedFields.success) {
       return {
-        error: "Missing information on key fields.",
+        error: "validation",
         zodErrors: validatedFields.error.flatten().fieldErrors,
         strapiErrors: null,
+        message: "Missing information on key fields.",
       };
     }
 
-    await prisma.product.create({ data: validatedFields });
+    await prisma.product.create({ data: data });
 
     revalidatePath('/admin/products');
 
