@@ -14,6 +14,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { ZodErrors } from "@/components/common/zod-errors";
 import { TrashIcon,PlusIcon} from "@heroicons/react/24/outline";
+import { boolean } from 'zod';
 
 const ProductForm = ({  type,  product,  productId,}) => {
   const router = useRouter();
@@ -44,7 +45,7 @@ const ProductForm = ({  type,  product,  productId,}) => {
         setImages((previousImages) => previousImages.concat(convertedFilesArray));
     };
 
-    const handleBannerChange = async (event) => {
+  const handleBannerChange = async (event) => {
       setBanner([]);
         const files = Array.from(event.target.files);
         const convertedFilesArray = await Promise.all(
@@ -75,20 +76,19 @@ const ProductForm = ({  type,  product,  productId,}) => {
   async function onSubmit(event) {
     event.preventDefault();
     try {
-      console.log("isFeatured: ", isFeatured);
           const formData = new FormData(event.currentTarget);
-          formData.append('isfeatured', isFeatured);    
+          formData.append('isFeatured', isFeatured);   
 
           if(images.length > 0) {
-              const imageNames = Array.from(images.map(img => img.name));
-              formData.append("images", imageNames);
+              const imageNames = images.map(img => img.name.trim());
+              formData.append("images", ['2015-11-10 17.47.29-3.jpg','2015-11-10 17.47.45.jpg','2015-11-10 17.47.1322.jpg']);
             }         
-          if (isFeatured === true) {
-              const bannerName = banner.map(img => img.name);
+          if (isFeatured) {
+              const bannerName = banner.map(img => img.name.trim());
               formData.append("banner", bannerName);
             }
             
-          if(isFeatured === true && banner.length === 0) {
+          if(isFeatured && banner.length === 0) {
               toast.error("Please upload a banner image for featured products.");
               return;
             }
@@ -97,8 +97,10 @@ const ProductForm = ({  type,  product,  productId,}) => {
           const productData = Object.fromEntries(formData.entries());
           if (productData.price) productData.price = parseFloat(productData.price);
           if (productData.stock) productData.stock = parseInt(productData.stock, 10);
-
+          if (productData.isFeatured) productData.isFeatured = Boolean(productData.isFeatured);
+          console.log("productData: ", productData);
             const response = await createProduct(productData);
+            console.log("response: ", response);
             if (response.error === "validation") {
               setState(response);
               toast.error(response.message);
@@ -220,7 +222,7 @@ const ProductForm = ({  type,  product,  productId,}) => {
       <div className='grid grid-cols-1'>
         <div className='flex space-x-2 mb-1'>
          <Label htmlFor="isFeatured" className='pb-2  text-sm'>Is Featured Product?:</Label>
-         <Checkbox name='isFeatured' className='border-2 border-gray-600' onClick={() => setIsFeatured(!isFeatured)}  /> 
+         <Checkbox  className='border-2 border-gray-600' onClick={() => setIsFeatured(!isFeatured)}  /> 
         </div>
           {isFeatured ? (<>
             <div className='flex space-x-2 mb-1'>
