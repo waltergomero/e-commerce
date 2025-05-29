@@ -20,7 +20,7 @@ const ProductForm = ({  type,  product,  productId,}) => {
   const router = useRouter();
   const [state, setState] = useState(null);
   const [images, setImages] = useState([]);
-  const [banner, setBanner] = useState([]);
+  const [banner, setBanner] = useState("");
   const [isFeatured, setIsFeatured] = useState(false);
 
   const handleSlugify = () => {
@@ -77,24 +77,27 @@ const ProductForm = ({  type,  product,  productId,}) => {
     event.preventDefault();
     try {
           const formData = new FormData(event.currentTarget);
-          formData.append('isFeatured', isFeatured);   
+          formData.append('isFeatured', isFeatured); 
+           formData.append("banner", banner);  
 
           if(images.length > 0) {
-              let imageNames = images.map(img => img.name);
-              formData.append("images", '"' + imageNames + '"');
+              formData.append("images", images);
             }         
-          if (isFeatured === true && banner.length === 0) {
-              let bannerName = banner.map(img => img.name);
-              formData.append("banner", bannerName);
-            }
             
-          if(isFeatured === true && banner.length === 0) {
+          if(isFeatured && banner.length === 0) {
               toast.error("Please upload a banner image for featured products.");
               return;
             }
+
           else{
-            console.log("data: ", formData.get("images"));
-            const response = await createProduct(formData);
+             
+          const productData = Object.fromEntries(formData.entries());
+          if (productData.price) productData.price = parseFloat(productData.price);
+          if (productData.stock) productData.stock = parseInt(productData.stock, 10);
+          productData.isFeatured = Boolean(isFeatured);
+          console.log("productData: ", productData);
+          console.log("isFeatured: ", isFeatured);
+            const response = await createProduct(productData);
             console.log("response: ", response);
             if (response.error === "validation") {
               setState(response);
@@ -118,8 +121,6 @@ const ProductForm = ({  type,  product,  productId,}) => {
       toast.error("Failed adding a product: " + e.message);
     }
   }
-
-  console.log("isFeatured: ", isFeatured);
 
   return (
     <form onSubmit={onSubmit} className='space-y-8'>

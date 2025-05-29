@@ -10,9 +10,9 @@ export const productSchema = z.object({
   brand: z.string().min(2, { message: 'Brand name must be selected' }),
   description: z.string().min(2, { message: 'Description must be at least 3 characters long' }),
   stock: z.coerce.number(),
-  images: z.array(z.string()).min(1, 'Product must have at least one image'),
+  images: z.string().min(1, 'Product must have at least one image'),
   isFeatured: z.boolean(),
-  banner: z.string().nullable(),
+  banner: z.string().optional(),
   price: z.number()
 });
 

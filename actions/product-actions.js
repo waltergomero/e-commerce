@@ -124,38 +124,17 @@ export async function deleteProduct(id) {
   }
 }
 
-// Create a product
-export async function createProduct(formData) {
-  try {
-        const product_name =  formData.get("product_name");
-        const slug = formData.get("slug");
-        const brand = formData.get("brand");
-        const description = formData.get("description");
-        const price = Number(formData.get("price"));
-        const category = formData.get("category");
-        const isFeatured = formData.get("isFeatured") === "on" ? true : false;
-        const banner = formData.get("banner");
-        const stock = Number(formData.get("stock"));
-        const images = formData.getAll("images") || [];
-        // Convert images to an array of strings
-        if (typeof images === 'string') {
-          throw new Error('Images must be an array of strings');
-        }
+async function checkPublicPath(dir){
+  const result =  await fs.existsSync(dir);
+  return result;
+};
 
-    // Validate required fields  
-      const validatedFields = productSchema.safeParse({
-        product_name,
-        slug,
-        brand,
-        description,
-        price,
-        category,
-        isFeatured,
-        banner,
-        stock,
-        images
-      });
-      
+// Create a product
+export async function createProduct(data) {
+  try {
+   console.log("Creating product with data:", data);
+   const validatedFields = productSchema.safeParse(data);
+    
     if (!validatedFields.success) {
       return {
         error: "validation",
@@ -166,7 +145,7 @@ export async function createProduct(formData) {
     }
     //check if product with same slug exists
     const existingProduct = await prisma.product.findFirst({
-      where: { slug: slug },
+      where: { slug: data.slug },
     });
     
     if (existingProduct) {
@@ -176,20 +155,35 @@ export async function createProduct(formData) {
       };
     }
 
-    const data = {
-      product_name: product_name,
-      slug: slug,
-      brand: brand,
-      description: description,
-      price: price,
-      category: category,
-      isFeatured: isFeatured,
-      banner: banner,
-      stock: stock,
-      images: images,
-    };
-    console.log("Creating product with data:", data);
-    await prisma.product.create({ data: data });
+    const partialDir = '/images/products/';
+    const dir = path.join(process.cwd(), 'public', partialDir);
+  
+    const dirExist = await checkPublicPath(dir);
+
+    if(dirExist === false){
+       fs.mkdirSync(dir, { recursive: true });
+     }
+
+    //loop through images and convert to string array
+    const _images = data.images.map((image) => image.toString());
+
+    //get banner if exists
+    const _banner = data.banner ? data.banner.toString() : null;
+
+    // const data_to_save = {
+    //   product_name: data.product_name,
+    //   slug: data.slug,
+    //   brand: data.brand,
+    //   description: data.description,
+    //   price: data.price,
+    //   category: category,
+    //   isFeatured: data.isFeatured,
+    //   banner: banner,
+    //   stock: data.stock,
+    //   images: images,
+    // };
+    // console.log("Creating product with data:", data_to_save);
+    // await prisma.product.create({ data: data_to_save });
 
     revalidatePath('/admin/products');
 
