@@ -80,26 +80,21 @@ const ProductForm = ({  type,  product,  productId,}) => {
           formData.append('isFeatured', isFeatured);   
 
           if(images.length > 0) {
-              const imageNames = images.map(img => img.name.trim());
-              formData.append("images", ['2015-11-10 17.47.29-3.jpg','2015-11-10 17.47.45.jpg','2015-11-10 17.47.1322.jpg']);
+              let imageNames = images.map(img => img.name);
+              formData.append("images", '"' + imageNames + '"');
             }         
-          if (isFeatured) {
-              const bannerName = banner.map(img => img.name.trim());
+          if (isFeatured === true && banner.length === 0) {
+              let bannerName = banner.map(img => img.name);
               formData.append("banner", bannerName);
             }
             
-          if(isFeatured && banner.length === 0) {
+          if(isFeatured === true && banner.length === 0) {
               toast.error("Please upload a banner image for featured products.");
               return;
             }
           else{
-
-          const productData = Object.fromEntries(formData.entries());
-          if (productData.price) productData.price = parseFloat(productData.price);
-          if (productData.stock) productData.stock = parseInt(productData.stock, 10);
-          if (productData.isFeatured) productData.isFeatured = Boolean(productData.isFeatured);
-          console.log("productData: ", productData);
-            const response = await createProduct(productData);
+            console.log("data: ", formData.get("images"));
+            const response = await createProduct(formData);
             console.log("response: ", response);
             if (response.error === "validation") {
               setState(response);
@@ -123,6 +118,8 @@ const ProductForm = ({  type,  product,  productId,}) => {
       toast.error("Failed adding a product: " + e.message);
     }
   }
+
+  console.log("isFeatured: ", isFeatured);
 
   return (
     <form onSubmit={onSubmit} className='space-y-8'>

@@ -125,10 +125,37 @@ export async function deleteProduct(id) {
 }
 
 // Create a product
-export async function createProduct(data) {
+export async function createProduct(formData) {
   try {
-    const validatedFields = productSchema.safeParse(data);
-    console.log("data latest: ", data);
+        const product_name =  formData.get("product_name");
+        const slug = formData.get("slug");
+        const brand = formData.get("brand");
+        const description = formData.get("description");
+        const price = Number(formData.get("price"));
+        const category = formData.get("category");
+        const isFeatured = formData.get("isFeatured") === "on" ? true : false;
+        const banner = formData.get("banner");
+        const stock = Number(formData.get("stock"));
+        const images = formData.getAll("images") || [];
+        // Convert images to an array of strings
+        if (typeof images === 'string') {
+          throw new Error('Images must be an array of strings');
+        }
+
+    // Validate required fields  
+      const validatedFields = productSchema.safeParse({
+        product_name,
+        slug,
+        brand,
+        description,
+        price,
+        category,
+        isFeatured,
+        banner,
+        stock,
+        images
+      });
+      
     if (!validatedFields.success) {
       return {
         error: "validation",
@@ -139,7 +166,7 @@ export async function createProduct(data) {
     }
     //check if product with same slug exists
     const existingProduct = await prisma.product.findFirst({
-      where: { slug: data.slug },
+      where: { slug: slug },
     });
     
     if (existingProduct) {
@@ -149,6 +176,19 @@ export async function createProduct(data) {
       };
     }
 
+    const data = {
+      product_name: product_name,
+      slug: slug,
+      brand: brand,
+      description: description,
+      price: price,
+      category: category,
+      isFeatured: isFeatured,
+      banner: banner,
+      stock: stock,
+      images: images,
+    };
+    console.log("Creating product with data:", data);
     await prisma.product.create({ data: data });
 
     revalidatePath('/admin/products');

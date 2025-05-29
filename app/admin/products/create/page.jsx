@@ -1,4 +1,4 @@
-import { Metadata } from 'next';
+
 import ProductForm from '@/components/admin/product-form';
 import { requireAdmin } from '@/lib/auth-guard';
 
