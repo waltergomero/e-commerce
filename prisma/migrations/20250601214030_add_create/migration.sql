@@ -3,9 +3,10 @@ CREATE TABLE "Product" (
     "id" UUID NOT NULL DEFAULT gen_random_uuid(),
     "product_name" TEXT NOT NULL,
     "slug" TEXT NOT NULL,
-    "category" TEXT NOT NULL,
-    "images" TEXT[],
-    "brand" TEXT NOT NULL,
+    "category_id" TEXT NOT NULL,
+    "category_name" TEXT NOT NULL,
+    "brand_id" TEXT NOT NULL,
+    "brand_name" TEXT NOT NULL,
     "description" TEXT NOT NULL,
     "stock" INTEGER NOT NULL,
     "price" DECIMAL(12,2) NOT NULL DEFAULT 0,
@@ -13,9 +14,19 @@ CREATE TABLE "Product" (
     "numReviews" INTEGER NOT NULL DEFAULT 0,
     "isFeatured" BOOLEAN NOT NULL DEFAULT false,
     "banner" TEXT,
+    "isactive" BOOLEAN DEFAULT true,
     "createdAt" TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "Product_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "ProductImages" (
+    "id" UUID NOT NULL DEFAULT gen_random_uuid(),
+    "product_id" TEXT NOT NULL,
+    "src" TEXT NOT NULL,
+
+    CONSTRAINT "ProductImages_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -39,6 +50,30 @@ CREATE TABLE "User" (
     "updated_by" TEXT,
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Category" (
+    "id" UUID NOT NULL DEFAULT gen_random_uuid(),
+    "category_name" TEXT NOT NULL,
+    "description" TEXT,
+    "isactive" BOOLEAN DEFAULT true,
+    "createdAt" TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3),
+
+    CONSTRAINT "Category_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Brand" (
+    "id" UUID NOT NULL DEFAULT gen_random_uuid(),
+    "brand_name" TEXT NOT NULL,
+    "description" TEXT,
+    "isactive" BOOLEAN DEFAULT true,
+    "createdAt" TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3),
+
+    CONSTRAINT "Brand_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable

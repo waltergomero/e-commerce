@@ -1,4 +1,5 @@
 
+import { Description } from "@radix-ui/react-dialog";
 import bcryptjs from "bcryptjs";
 
 const salt = bcryptjs.genSaltSync(10)
@@ -23,6 +24,26 @@ const sampleData = {
       password: hashedPassword,
       isadmin: false,
     }
+  ],
+  brands: [
+    {
+      brand_name: 'Polo',
+      description: 'Elegant and timeless fashion brand known for its classic styles and quality craftsmanship.',
+    },
+    {
+      brand_name: 'Brooks Brothers',
+      description: 'Brooks Brothers is an American clothing brand known for its classic and preppy styles.',
+    },
+    {
+      brand_name: 'Tommy Hilfiger',
+      description: 'Tommy Hilfiger is a premium lifestyle brand known for its classic American style.',
+    }
+  ],
+    categories: [
+    {
+      category_name: "Men's Dress Shirts",
+      description: 'Shirts designed for formal occasions and professional settings.',
+    },
   ],
 
   products: [

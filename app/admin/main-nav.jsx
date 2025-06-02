@@ -17,6 +17,14 @@ const links = [
     title: 'Products',
     href: '/admin/products',
   },
+      {
+    title: 'Brands',
+    href: '/admin/brands',
+  },
+      {
+    title: 'Categories',
+    href: '/admin/categories',
+  },
   {
     title: 'Users',
     href: '/admin/users',

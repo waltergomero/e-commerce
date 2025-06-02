@@ -8,7 +8,7 @@ import { revalidatePath } from 'next/cache';
 
 //get all products
 export async function getLatestProducts() {
-    const data = await prisma.product.findMany({
+    const data = await prisma.Product.findMany({
         take: LATEST_PRODUCTS_LIMIT,
         orderBy:{createdAt: 'desc'},
     })
@@ -18,16 +18,20 @@ export async function getLatestProducts() {
 
 //get single product by slug
 export async function getProductBySlug(slug){
-    return await prisma.product.findFirst({
+    const _product = await prisma.Product.findFirst({
         where: {slug: slug}
-    })
+    });
+     
+    return convertToPlainObject(_product);
 }
 
 //get single product by id
-export async function getProductById(id){
-    return await prisma.product.findFirst({
+export async function fetchProductById(id){
+    const _product = await prisma.Product.findFirst({
         where: {id: id}
     })
+  
+    return convertToPlainObject(_product);
 }
 
 // Get all products
@@ -130,11 +134,32 @@ async function checkPublicPath(dir){
 };
 
 // Create a product
-export async function createProduct(data) {
+export async function createProduct(formData) {
   try {
-   console.log("Creating product with data:", data);
-   const validatedFields = productSchema.safeParse(data);
-    
+    console.log("Creating product with formData:", formData);
+      const product_name = formData.get("product_name");    
+      const slug = formData.get("slug");
+      const category_id = formData.get("category_id");
+      const category_name = formData.get("category_name"); 
+      const brand_id = formData.get("brand_id");
+      const brand_name = formData.get("brand_name");
+      const stock = Number(formData.get("stock")); 
+      const price = parseFloat(formData.get("price"));
+      const isFeatured = Boolean(formData.get("isFeatured"));
+      const banner = formData.get("banner");
+      const description = formData.get("description"); 
+
+    const validatedFields = productSchema.safeParse({
+      product_name,
+      slug,
+      category_id,
+      brand_id,
+      stock,
+      price,
+      isFeatured,
+      description
+    });
+
     if (!validatedFields.success) {
       return {
         error: "validation",
@@ -144,8 +169,8 @@ export async function createProduct(data) {
       };
     }
     //check if product with same slug exists
-    const existingProduct = await prisma.product.findFirst({
-      where: { slug: data.slug },
+    const existingProduct = await prisma.Product.findFirst({
+      where: { slug: slug },
     });
     
     if (existingProduct) {
@@ -155,78 +180,100 @@ export async function createProduct(data) {
       };
     }
 
-    const partialDir = '/images/products/';
-    const dir = path.join(process.cwd(), 'public', partialDir);
-  
-    const dirExist = await checkPublicPath(dir);
-
-    if(dirExist === false){
-       fs.mkdirSync(dir, { recursive: true });
-     }
-
-    //loop through images and convert to string array
-    const _images = data.images.map((image) => image.toString());
-
-    //get banner if exists
-    const _banner = data.banner ? data.banner.toString() : null;
-
-    // const data_to_save = {
-    //   product_name: data.product_name,
-    //   slug: data.slug,
-    //   brand: data.brand,
-    //   description: data.description,
-    //   price: data.price,
-    //   category: category,
-    //   isFeatured: data.isFeatured,
-    //   banner: banner,
-    //   stock: data.stock,
-    //   images: images,
-    // };
-    // console.log("Creating product with data:", data_to_save);
-    // await prisma.product.create({ data: data_to_save });
-
-    revalidatePath('/admin/products');
-
+    const data_to_save = {
+      product_name: product_name,
+      slug: slug,
+      category_id: category_id,
+      category_name: category_name,
+      brand_id: brand_id,
+      brand_name: brand_name,
+      price: price,
+      stock: stock,
+      isFeatured: isFeatured,
+      banner: banner,
+      description: description,
+    };
+    await prisma.Product.create({ data: data_to_save });
     return {
       success: true,
       message: 'Product created successfully',
     };
   } catch (error) {
+    console.error("Error creating product:", error);
     return { success: false, message: error.message };
   }
 }
 
 // Update a product
-export async function updateProduct(data) {
+export async function updateProduct(formData) {
   try {
-    const product = updateProductSchema.parse(data);
+      console.log("Update product with formData:", formData);
+      const product_id = formData.get("product_id");  
+      const product_name = formData.get("product_name");    
+      const slug = formData.get("slug");
+      const category_id = formData.get("category_id");
+      const category_name = formData.get("category_name"); 
+      const brand_id = formData.get("brand_id");
+      const brand_name = formData.get("brand_name");
+      const stock = Number(formData.get("stock")); 
+      const price = parseFloat(formData.get("price"));
+      const isFeatured = Boolean(formData.get("isFeatured"));
+      const banner = formData.get("banner");
+      const description = formData.get("description"); 
 
-    if (!product.success) {
+    const validatedFields = productSchema.safeParse({
+      product_name,
+      slug,
+      category_id,
+      brand_id,
+      stock,
+      price,
+      isFeatured,
+      description
+    });
+
+    if (!validatedFields.success) {
       return {
         error: "Missing information on key fields.",
         zodErrors: validatedFields.error.flatten().fieldErrors,
         strapiErrors: null,
       };
     }
-    const productExists = await prisma.product.findFirst({
-      where: { id: product.id },
+    const productExists = await prisma.Product.findFirst({
+      where: { id: product_id },
     });
 
     if (!productExists) throw new Error('Product not found');
-
-    await prisma.product.update({
-      where: { id: product.id },
-      data: product,
+    //check if product with same slug exists
+    const existingProduct = await prisma.Product.findFirst({
+      where: { slug: slug, id: { not: product_id } },
     });
 
-    revalidatePath('/admin/products');
+      const data_to_save = {
+      product_name: product_name,
+      slug: slug,
+      category_id: category_id,
+      category_name: category_name,
+      brand_id: brand_id,
+      brand_name: brand_name,
+      price: price,
+      stock: stock,
+      isFeatured: isFeatured,
+      banner: banner,
+      description: description,
+    };
+
+    await prisma.Product.update({
+      where: { id: product_id },
+      data: data_to_save,
+    });
 
     return {
       success: true,
       message: 'Product updated successfully',
     };
   } catch (error) {
-    return { success: false, message: formatError(error) };
+    return { success: false, message: (error.message) };
   }
 }
 

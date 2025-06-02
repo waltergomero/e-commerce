@@ -6,14 +6,16 @@ import { z } from 'zod';
 export const productSchema = z.object({
   product_name: z.string().min(2, { message: 'Product name must be at least 2 characters long' }),
   slug: z.string().min(2, { message: 'Code name must be at least 2 characters long' }),
-  category: z.string().min(2, { message: 'Category name must be selected' }),
-  brand: z.string().min(2, { message: 'Brand name must be selected' }),
+  category_id: z.string().min(2, { message: 'Category name must be selected' }),
+  brand_id: z.string().min(2, { message: 'Brand name must be selected' }),
   description: z.string().min(2, { message: 'Description must be at least 3 characters long' }),
-  stock: z.coerce.number(),
-  images: z.string().min(1, 'Product must have at least one image'),
+  stock: z.number().refine((value) => value >= 0, {
+    message: 'Stock must be a number',
+  }),
   isFeatured: z.boolean(),
-  banner: z.string().optional(),
-  price: z.number()
+  price: z.number().refine((value) => value > 0, {
+    message: 'Price must be a positive number',
+  }),
 });
 
 export const updateProductSchema = productSchema.extend({
@@ -38,6 +40,14 @@ export const userUpdateSchema = z.object({
   first_name: z.string().min(2, { message: 'Name must be at least 2 characters long' }),
   last_name: z.string().min(2, { message: 'Name must be at least 2 characters long' }),
   email: z.string().email({ message: 'Invalid email address' }),
+});
+
+export const brandSchema = z.object({
+  brand_name: z.string().min(2, { message: 'Brand name must be at least 2 characters long' }),
+});
+
+export const categorySchema = z.object({
+  category_name: z.string().min(2, { message: 'Category name must be at least 2 characters long' }),
 });
 
 

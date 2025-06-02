@@ -1,6 +1,5 @@
 import Link from 'next/link';
-import { getAllProducts, deleteProduct } from '@/actions/product-actions';
-import { formatCurrency, formatId } from '@/lib/utils';
+import { fetchAllBrands, deleteBrand } from '@/actions/brand-actions';
 import { Button } from '@/components/ui/button';
 import {
   Table,
@@ -14,30 +13,28 @@ import Pagination from '@/components/shared/pagination';
 import DeleteDialog from '@/components/shared/delete-dialog';
 import { requireAdmin } from '@/lib/auth-guard';
 
-const AdminProductsPage = async (props) => {
+const AdminBrandsPage = async (props) => {
   await requireAdmin();
 
   const searchParams = await props.searchParams;
   // const { searchParams } = props;
   const page = Number(searchParams.page) || 1;
   const searchText = searchParams.query || '';
-  const category = searchParams.category || '';
 
-  const products = await getAllProducts({
+  const brands = await fetchAllBrands({
     query: searchText,
     page,
-    category,
   });
 
   return (
     <div className='space-y-2'>
       <div className='flex-between'>
         <div className='flex items-center gap-3'>
-          <h1 className='h2-bold'>Products</h1>
+          <h1 className='h2-bold'>Brands</h1>
           {searchText && (
             <div>
               Filtered by <i>&quot;{searchText}&quot;</i>{' '}
-              <Link href='/admin/products'>
+              <Link href='/admin/brands' className='inline'>
                 <Button variant='outline' size='sm'>
                   Remove Filter
                 </Button>
@@ -46,48 +43,42 @@ const AdminProductsPage = async (props) => {
           )}
         </div>
         <Button asChild variant='default'>
-          <Link href='/admin/products/create'>Create Product</Link>
+          <Link href='/admin/brands/create'>Create Brand</Link>
         </Button>
       </div>
 
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>ID</TableHead>
-            <TableHead>NAME</TableHead>
-            <TableHead className='text-right'>PRICE</TableHead>
-            <TableHead>CATEGORY</TableHead>
-            <TableHead>STOCK</TableHead>
-            <TableHead>RATING</TableHead>
+            <TableHead>BRAND ID</TableHead>
+            <TableHead>BRAND NAME</TableHead>
+            <TableHead>DESCRIPTION</TableHead>
+            <TableHead>IS ACTIVE?</TableHead>
             <TableHead className='w-[100px]'>ACTIONS</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {products.data.map((product) => (
-            <TableRow key={product.id}>
-              <TableCell>{(product.id)}</TableCell>
-              <TableCell>{product.product_name}</TableCell>
-              <TableCell className='text-right'>
-                {formatCurrency(product.price.toString())}
-              </TableCell>
-              <TableCell>{product.category}</TableCell>
-              <TableCell>{product.stock}</TableCell>
-              <TableCell>{Number(product.rating)}</TableCell>
+          {brands?.map((brand) => (
+            <TableRow key={brand.id}>
+              <TableCell>{(brand.id)}</TableCell>
+              <TableCell>{brand.brand_name}</TableCell>
+              <TableCell>{brand.description}</TableCell>
+              <TableCell>{brand.isactive ? 'Yes' : 'No'}</TableCell>
               <TableCell className='flex gap-1'>
                 <Button asChild variant='outline' size='sm'>
-                  <Link href={`/admin/products/${product.id}`}>Edit</Link>
+                  <Link href={`/admin/brands/${brand.id}`}>Edit</Link>
                 </Button>
-                <DeleteDialog id={product.id} action={deleteProduct} />
+                <DeleteDialog id={brand.id} action={deleteBrand} />
               </TableCell>
             </TableRow>
           ))}
         </TableBody>
       </Table>
-      {products.totalPages > 1 && (
-        <Pagination page={page} totalPages={products.totalPages} />
+      {brands.totalPages > 1 && (
+        <Pagination page={page} totalPages={brands.totalPages} />
       )}
     </div>
   );
 };
 
-export default AdminProductsPage;
+export default AdminBrandsPage;

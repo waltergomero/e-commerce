@@ -7,7 +7,7 @@ import slugify from 'slugify';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { createProduct, } from '@/actions/product-actions';
+import { updateProduct, } from '@/actions/product-actions';
 import { Card, CardContent } from '@/components/ui/card';
 import Image from 'next/image';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -16,13 +16,13 @@ import { ZodErrors } from "@/components/common/zod-errors";
 import { TrashIcon,PlusIcon} from "@heroicons/react/24/outline";
 
 
-const ProductForm = ({ brands, categories }) => {
+const ProductEditForm = ({ product, brands, categories }) => {
   const router = useRouter();
   const [state, setState] = useState(null);
-  const [bannerImage, setBannerImage] = useState(null);
-  const [isFeatured, setIsFeatured] = useState(false);
-  const [categoryValue, setCategoryValue] = useState("");
-  const [brandValue, setBrandValue] = useState("");
+  const [bannerImage, setBannerImage] = useState(product.banner);
+  const [isFeatured, setIsFeatured] = useState(product.isFeatured);
+  const [categoryValue, setCategoryValue] = useState(product.category_name);
+  const [brandValue, setBrandValue] = useState(product.brand_name);
 
 
   const handleSlugify = () => {
@@ -66,7 +66,6 @@ const handleBannerChange = async (event) => {
 
   async function onSubmit(event) {
     event.preventDefault();
-    console.log(bannerImage)
     try {
         const formData = new FormData(event.currentTarget);
         if(isFeatured && bannerImage === null) {
@@ -92,7 +91,7 @@ const handleBannerChange = async (event) => {
               });
             } 
         else {
-              const response = await createProduct(formData);
+              const response = await updateProduct(formData);
               if (response.error === "validation") {
                 setState(response);
                 toast.error(response.message);
@@ -117,17 +116,18 @@ const handleBannerChange = async (event) => {
     <form onSubmit={onSubmit} className='space-y-8'>
       <input type="hidden" name="category_name" defaultValue={categoryValue}/>
       <input type="hidden" name="brand_name" defaultValue={brandValue}/>
+      <input type="hidden" name="product_id" defaultValue={product.id}/>
     <div className='space-y-6'>
     <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
       <div className="col-span-2 sm:col-span-1">
             <Label htmlFor="product_name" className='pb-2'>Product name:</Label>
-            <Input type="text"  name="product_name" />
+            <Input type="text"  name="product_name" defaultValue={product.product_name} />
             <ZodErrors error={state?.zodErrors?.product_name} />
           </div>
           
           <div className="col-span-2 sm:col-span-1 relative">
             <Label htmlFor="slug" className='pb-2'>Slug:</Label>
-            <Input type="text"  name="slug"  />
+            <Input type="text"  name="slug" defaultValue={product.slug} />
             <span className='absolute top-1/2 -translate-y-1/4 right-0 text-xs text-gray-500'>
               <Button
                   type='button'
@@ -146,6 +146,7 @@ const handleBannerChange = async (event) => {
             <select
               name="category_id"
               onClick={handleCategory}
+              defaultValue={product.category_id}
               className="peer block w-full cursor-pointer rounded-md border border-gray-200 px-2 py-1 text-sm outline-2 placeholder:text-gray-500">
               <option value=""></option>
               {categories.map((category) => (
@@ -162,6 +163,7 @@ const handleBannerChange = async (event) => {
             <select
               name="brand_id"
               onClick={handleBrand}
+              defaultValue={product.brand_id}
               className="peer block w-full cursor-pointer rounded-md border border-gray-200 px-2 py-1 text-sm outline-2 placeholder:text-gray-500">
               <option value=""></option>
               {brands.map((brand) => (
@@ -177,13 +179,13 @@ const handleBannerChange = async (event) => {
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
           <div className="col-span-2 sm:col-span-1">
             <Label htmlFor="price" className='pb-2'>Price:</Label>
-            <Input type="decimal"  name="price" />
+            <Input type="decimal"  name="price" defaultValue={product.price} />
             <ZodErrors error={state?.zodErrors?.price} />
           </div>
           
           <div className="col-span-2 sm:col-span-1">
             <Label htmlFor="stock" className='pb-2'>Stock:</Label>
-            <Input type="number"  name="stock"  />
+            <Input type="number"  name="stock" defaultValue={product.stock} />
             <ZodErrors error={state?.zodErrors?.stock} />
           </div>
           
@@ -241,7 +243,7 @@ const handleBannerChange = async (event) => {
       </div>
       <div className='grid grid-cols-1'>
         <Label htmlFor="description" className='pb-2'>Description:</Label>
-        <Textarea name="description" rows={4} />
+        <Textarea name="description" rows={4} defaultValue={product.description} />
         <ZodErrors error={state?.zodErrors?.description} />
       </div>
      </div>
@@ -267,4 +269,4 @@ const handleBannerChange = async (event) => {
   );
 };
 
-export default ProductForm;
+export default ProductEditForm;
