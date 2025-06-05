@@ -5,6 +5,10 @@ import {Card, CardContent, CardHeader} from '@/components/ui/card';
 import ProductPrice from './product-price';
 
 const ProductCard = ({product}) => {
+
+  if(!product || !product.images || product.images.length === 0) {
+        return null; // or you can return a placeholder component   
+    }
   return (
     <Card className='w-full max-w-sm'>
         <CardHeader className='p-0 items-center'>

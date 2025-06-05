@@ -14,6 +14,8 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { ZodErrors } from "@/components/common/zod-errors";
 import { TrashIcon,PlusIcon} from "@heroicons/react/24/outline";
+import Compressor from "compressorjs";
+import heic2any from "heic2any";
 
 
 const ProductForm = ({ brands, categories }) => {
@@ -73,24 +75,6 @@ const handleBannerChange = async (event) => {
               toast.error("Please upload a banner image for featured products.");
               return;
           }
-        if (bannerImage !== null) {
-              const API_PATH = "/api/product/banner/";
-              bannerImage && bannerImage?.map((image) => {
-                const ext = image.name.substr(image.name.lastIndexOf(".") + 1);
-                new Compressor(image, {
-                  quality: 0.9, // 0.6 can also be used, but its not recommended to go below.
-                  success: (result) => {
-                    formData.append("banner", image);
-                    formData.append("extension", ext);
-                    fetch(API_PATH, {
-                      method: "POST",
-                      body: formData,
-                    });
-                    order ++;   
-                  },
-                });                 
-              });
-            } 
         else {
               const response = await createProduct(formData);
               if (response.error === "validation") {
@@ -101,6 +85,23 @@ const handleBannerChange = async (event) => {
               } else if (response.success === false) {
                 toast.error("Failed adding a product: " + response.message);
               } else if (response.success) {
+                  if (bannerImage !== null) {
+                      const API_PATH = "/api/product/banner/";
+                      bannerImage && bannerImage?.map((image) => {
+                        const ext = image.name.substr(image.name.lastIndexOf(".") + 1);
+                        new Compressor(image, {
+                          quality: 0.9, // 0.6 can also be used, but its not recommended to go below.
+                          success: (result) => {
+                            formData.append("image", image);
+                            formData.append("extension", ext);
+                            fetch(API_PATH, {
+                              method: "POST",
+                              body: formData,
+                            });
+                          },
+                        });                 
+                      });
+                    } 
                 toast.success("Product added successfully");
                 router.push('/admin/products');
               } else {
@@ -213,7 +214,7 @@ const handleBannerChange = async (event) => {
           <Card>
             <CardContent className='space-y-2 mt-2'>
              <div className='flex-start space-x-2'>
-                {banner.map((file, idx) => (
+                {bannerImage?.map((file, idx) => (
                   <div className="relative m-1" key={idx}>
                     <Image
                       src={URL.createObjectURL(file)}

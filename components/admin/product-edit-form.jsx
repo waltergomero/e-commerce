@@ -10,20 +10,23 @@ import { Textarea } from '@/components/ui/textarea';
 import { updateProduct, } from '@/actions/product-actions';
 import { Card, CardContent } from '@/components/ui/card';
 import Image from 'next/image';
-import { Checkbox } from '@/components/ui/checkbox';
+import  CheckboxDefault  from '@/components/ui/custom/checkboxDefault';
 import { Label } from '@/components/ui/label';
 import { ZodErrors } from "@/components/common/zod-errors";
 import { TrashIcon,PlusIcon} from "@heroicons/react/24/outline";
+import Compressor from "compressorjs";
+import heic2any from "heic2any";
 
 
-const ProductEditForm = ({ product, brands, categories }) => {
+const ProductEditForm = ({ type, product, brands, categories }) => {
   const router = useRouter();
   const [state, setState] = useState(null);
-  const [bannerImage, setBannerImage] = useState(product.banner);
-  const [isFeatured, setIsFeatured] = useState(product.isFeatured);
+  const [bannerImage, setBannerImage] = useState([]);
+  const [isFeatured, setIsFeatured] = useState(null);
   const [categoryValue, setCategoryValue] = useState(product.category_name);
   const [brandValue, setBrandValue] = useState(product.brand_name);
 
+ console.log("bannerImage:", bannerImage);
 
   const handleSlugify = () => {
     const productName = document.querySelector('Input[name="product_name"]').value;
@@ -48,9 +51,30 @@ const handleBannerChange = async (event) => {
 };
   
   const handleRemoveBannerImage = (index) => {
-        const newImages = banner.filter((_, i) => i !== index);
-        setBanner(newImages);
+        const newImages = bannerImage.filter((_, i) => i !== index);
+        setBannerImage(newImages);
     };
+
+  const removeBannerImageFromDatabase = async () => {
+    try { 
+      const response = await fetch(`/api/product/banner/`, {
+        method: 'DELETE',
+        headers: {  
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ slug: product.slug }),
+      });
+      if (response.ok) {
+        toast.success("Banner image removed successfully.");
+        setBannerImage(null);
+      } else {
+        const errorData = await response.json();
+        toast.error("Failed to remove banner image: " + errorData.message);
+      }
+    } catch (error) {
+      toast.error("Failed to remove banner image: " + error.message);
+    }
+  };
 
   const handleCategory = e => {
     e.preventDefault();
@@ -64,32 +88,29 @@ const handleBannerChange = async (event) => {
     setBrandValue(dropdownName);
   };
 
-  async function onSubmit(event) {
+  const handleFeaturedChange = (e) => {
+    e.preventDefault();
+    console.log("Featured checkbox clicked:", e.target.checked);
+    setIsFeatured(e.target.checked);
+    if (!e.target.checked) {
+      setBannerImage(null); // Reset banner image when unchecking featured
+    }
+    // if (e.target.checked && bannerImage === null) {
+    //   toast.error("Please upload a banner image for featured products.");
+    // }
+  };
+
+  console.log("is featured", isFeatured);
+
+async function onSubmit(event) {
     event.preventDefault();
     try {
         const formData = new FormData(event.currentTarget);
+        formData.append("isFeatured", isFeatured);
         if(isFeatured && bannerImage === null) {
               toast.error("Please upload a banner image for featured products.");
               return;
           }
-        if (bannerImage !== null) {
-              const API_PATH = "/api/product/banner/";
-              bannerImage && bannerImage?.map((image) => {
-                const ext = image.name.substr(image.name.lastIndexOf(".") + 1);
-                new Compressor(image, {
-                  quality: 0.9, // 0.6 can also be used, but its not recommended to go below.
-                  success: (result) => {
-                    formData.append("banner", image);
-                    formData.append("extension", ext);
-                    fetch(API_PATH, {
-                      method: "POST",
-                      body: formData,
-                    });
-                    order ++;   
-                  },
-                });                 
-              });
-            } 
         else {
               const response = await updateProduct(formData);
               if (response.error === "validation") {
@@ -100,6 +121,23 @@ const handleBannerChange = async (event) => {
               } else if (response.success === false) {
                 toast.error("Failed adding a product: " + response.message);
               } else if (response.success) {
+                  if (bannerImage !== null) {
+                      const API_PATH = "/api/product/banner/";
+                      bannerImage && bannerImage?.map((image) => {
+                        const ext = image.name.substr(image.name.lastIndexOf(".") + 1);
+                        new Compressor(image, {
+                          quality: 0.9, // 0.6 can also be used, but its not recommended to go below.
+                          success: (result) => {
+                            formData.append("image", image);
+                            formData.append("extension", ext);
+                            fetch(API_PATH, {
+                              method: "POST",
+                              body: formData,
+                            });
+                          },
+                        });                 
+                      });
+                    } 
                 toast.success("Product added successfully");
                 router.push('/admin/products');
               } else {
@@ -192,8 +230,7 @@ const handleBannerChange = async (event) => {
       </div>
       <div className='grid grid-cols-1'>
         <div className='flex space-x-2 mb-1'>
-         <Label htmlFor="isFeatured" className='pb-2  text-sm'>Is Featured Product?:</Label>
-         <Checkbox  className='border-2 border-gray-600' onClick={() => setIsFeatured(!isFeatured)}  /> 
+         <CheckboxDefault  title="Is Featured Product?" name="isFeatured" checked={product.isFeatured} />
         </div>
           {isFeatured ? (<>
             <div className='flex space-x-2 mb-1'>
@@ -214,26 +251,53 @@ const handleBannerChange = async (event) => {
         <div>
           <Card>
             <CardContent className='space-y-2 mt-2'>
+              {product.banner ? (
              <div className='flex-start space-x-2'>
-                {banner.map((file, idx) => (
-                  <div className="relative m-1" key={idx}>
+              {product.banner ? 
+                    (
+                  <div className="relative m-1">
                     <Image
-                      src={URL.createObjectURL(file)}
+                      src={product.banner}
                       width="1920"
                       height="680"
-                      alt={`preview-${idx}`}
+                      alt={product.banner}
                       className="border border-gray-300 rounded"
                     />
+                    
                     <button
-                      onClick={() => handleRemoveBannerImage(idx)}
+                      onClick={() => removeBannerImageFromDatabase()}
                       className="absolute top-0 right-0 bg-red-500 text-white rounded-sm p-1"
                       type="button"
                     >
                       <TrashIcon className="w-5 h-5 text-white" />
                     </button>
-                  </div>
-                ))}
-              </div>
+                  </div>) : null}
+              </div>)
+              : (
+              <div className='flex-start space-x-2'>
+                {bannerImage && bannerImage.length > 0 ? (
+                  bannerImage.map((file, idx) => (
+                    <div className="relative m-1" key={idx}>
+                      <Image
+                        src={URL.createObjectURL(file)}
+                        width="1920"
+                        height="680"
+                        alt={`preview-${idx}`}
+                        className="border border-gray-300 rounded"
+                      />
+                      <button
+                        onClick={() => handleRemoveBannerImage(idx)}
+                        className="absolute top-0 right-0 bg-red-500 text-white rounded-sm p-1"
+                        type="button"
+                      >
+                        <TrashIcon className="w-5 h-5 text-white" />
+                      </button>
+                    </div>
+                  ))
+                ) : null
+                }
+              </div>)
+            }
             </CardContent>
           </Card>
           </div>

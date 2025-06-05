@@ -249,7 +249,7 @@ export async function updateProduct(formData) {
       where: { slug: slug, id: { not: product_id } },
     });
 
-      const data_to_save = {
+      const data_to_update = {
       product_name: product_name,
       slug: slug,
       category_id: category_id,
@@ -262,10 +262,10 @@ export async function updateProduct(formData) {
       banner: banner,
       description: description,
     };
-
+    console.log("Data to update:", data_to_update);
     await prisma.Product.update({
       where: { id: product_id },
-      data: data_to_save,
+      data: data_to_update,
     });
 
     return {

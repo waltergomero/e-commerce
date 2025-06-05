@@ -27,7 +27,7 @@ const EditProductPage = async ({params}) => {
     <>
       <h2 className='h2-bold'>Edit a Product</h2>
       <div className='my-8'>
-        <ProductEditForm product={product} brands={brands} categories={categories} />
+        <ProductEditForm type="edit" product={product} brands={brands} categories={categories} />
       </div>
     </>
   );
