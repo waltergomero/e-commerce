@@ -22,7 +22,8 @@ const ProductEditForm = ({ type, product, brands, categories }) => {
   const router = useRouter();
   const [state, setState] = useState(null);
   const [bannerImage, setBannerImage] = useState([]);
-  const [isFeatured, setIsFeatured] = useState(null);
+  //const [isFeatured, setIsFeatured] = useState(null);
+  const [isFeaturedChecked, setIsFeaturedChecked] = useState(false);
   const [categoryValue, setCategoryValue] = useState(product.category_name);
   const [brandValue, setBrandValue] = useState(product.brand_name);
 
@@ -88,26 +89,12 @@ const handleBannerChange = async (event) => {
     setBrandValue(dropdownName);
   };
 
-  const handleFeaturedChange = (e) => {
-    e.preventDefault();
-    console.log("Featured checkbox clicked:", e.target.checked);
-    setIsFeatured(e.target.checked);
-    if (!e.target.checked) {
-      setBannerImage(null); // Reset banner image when unchecking featured
-    }
-    // if (e.target.checked && bannerImage === null) {
-    //   toast.error("Please upload a banner image for featured products.");
-    // }
-  };
-
-  console.log("is featured", isFeatured);
-
 async function onSubmit(event) {
     event.preventDefault();
     try {
         const formData = new FormData(event.currentTarget);
-        formData.append("isFeatured", isFeatured);
-        if(isFeatured && bannerImage === null) {
+        formData.append("isFeatured", isFeaturedChecked);
+        if(isFeaturedChecked && bannerImage === null) {
               toast.error("Please upload a banner image for featured products.");
               return;
           }
@@ -230,9 +217,9 @@ async function onSubmit(event) {
       </div>
       <div className='grid grid-cols-1'>
         <div className='flex space-x-2 mb-1'>
-         <CheckboxDefault  title="Is Featured Product?" name="isFeatured" checked={product.isFeatured} />
+         <CheckboxDefault  title="Is Featured Product?" name="isFeatured" checked={product.isFeatured} onChange={setIsFeaturedChecked}/>
         </div>
-          {isFeatured ? (<>
+          {isFeaturedChecked ? (<>
             <div className='flex space-x-2 mb-1'>
               <Input
                 id="banner-upload"
