@@ -12,7 +12,6 @@ export const productSchema = z.object({
   stock: z.number().refine((value) => value >= 0, {
     message: 'Stock must be a number',
   }),
-  isFeatured: z.boolean(),
   price: z.number().refine((value) => value > 0, {
     message: 'Price must be a positive number',
   }),

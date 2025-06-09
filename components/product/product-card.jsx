@@ -5,16 +5,17 @@ import {Card, CardContent, CardHeader} from '@/components/ui/card';
 import ProductPrice from './product-price';
 
 const ProductCard = ({product}) => {
+    console.log("ProductCard product:", product);
 
-  if(!product || !product.images || product.images.length === 0) {
-        return null; // or you can return a placeholder component   
+  if(!product || !product.ProductImages || product.ProductImages.length === 0) {
+        return null; // or you can return a placeholder component
     }
   return (
     <Card className='w-full max-w-sm'>
         <CardHeader className='p-0 items-center'>
             <Link href={`/product/${product.slug}`}>
                 <Image
-                    src={product.images[0]}
+                    src={product.ProductImages[0].src}
                     alt={product.product_name}
                     height={300}
                     width={300}

@@ -5,21 +5,30 @@ import { convertToPlainObject } from "@/lib/utils";
 import { LATEST_PRODUCTS_LIMIT, PAGE_SIZE } from '@/lib/constants';
 import { productSchema,updateProductSchema } from '@/schemas/validation-schemas';
 import { revalidatePath } from 'next/cache';
+import { unstable_noStore as noStore } from 'next/cache';
+import ProductImages from '@/components/product/product-images';
 
 //get all products
 export async function getLatestProducts() {
     const data = await prisma.Product.findMany({
         take: LATEST_PRODUCTS_LIMIT,
+        include: {
+        ProductImages: true,
+      },
         orderBy:{createdAt: 'desc'},
     })
-
+ console.log("Latest products data:", data);
     return convertToPlainObject(data);
 }
 
 //get single product by slug
 export async function getProductBySlug(slug){
+    noStore();
     const _product = await prisma.Product.findFirst({
-        where: {slug: slug}
+        where: {slug: slug},
+        include: {
+        ProductImages: true,
+      },
     });
      
     return convertToPlainObject(_product);
@@ -27,9 +36,13 @@ export async function getProductBySlug(slug){
 
 //get single product by id
 export async function fetchProductById(id){
+    noStore();
     const _product = await prisma.Product.findFirst({
-        where: {id: id}
-    })
+        where: {id: id},
+        include: {
+          ProductImages: true,
+        },
+    });
   
     return convertToPlainObject(_product);
 }
@@ -128,6 +141,21 @@ export async function deleteProduct(id) {
   }
 }
 
+//fetch product images
+export async function fetchProductImages(productId) {
+  try {
+    const images = await prisma.ProductImages.findMany({
+      where: { productId: productId },
+    });
+
+    return convertToPlainObject(images);
+  } catch (error) {
+    console.error("Error fetching product images:", error);
+    return [];
+  }
+}
+
+
 async function checkPublicPath(dir){
   const result =  await fs.existsSync(dir);
   return result;
@@ -145,7 +173,6 @@ export async function createProduct(formData) {
       const brand_name = formData.get("brand_name");
       const stock = Number(formData.get("stock")); 
       const price = parseFloat(formData.get("price"));
-      const isFeatured = Boolean(formData.get("isFeatured"));
       const banner = formData.get("banner");
       const description = formData.get("description"); 
 
@@ -156,7 +183,6 @@ export async function createProduct(formData) {
       brand_id,
       stock,
       price,
-      isFeatured,
       description
     });
 
@@ -189,7 +215,6 @@ export async function createProduct(formData) {
       brand_name: brand_name,
       price: price,
       stock: stock,
-      isFeatured: isFeatured,
       banner: banner,
       description: description,
     };
@@ -217,8 +242,6 @@ export async function updateProduct(formData) {
       const brand_name = formData.get("brand_name");
       const stock = Number(formData.get("stock")); 
       const price = parseFloat(formData.get("price"));
-      const isFeatured = Boolean(formData.get("isFeatured"));
-      const banner = formData.get("banner");
       const description = formData.get("description"); 
 
     const validatedFields = productSchema.safeParse({
@@ -228,10 +251,10 @@ export async function updateProduct(formData) {
       brand_id,
       stock,
       price,
-      isFeatured,
       description
     });
 
+          console.log("validatedFields:", validatedFields);
     if (!validatedFields.success) {
       return {
         error: "Missing information on key fields.",
@@ -239,6 +262,8 @@ export async function updateProduct(formData) {
         strapiErrors: null,
       };
     }
+
+
     const productExists = await prisma.Product.findFirst({
       where: { id: product_id },
     });
@@ -248,7 +273,7 @@ export async function updateProduct(formData) {
     const existingProduct = await prisma.Product.findFirst({
       where: { slug: slug, id: { not: product_id } },
     });
-
+    console.log("Existing product:", existingProduct);
       const data_to_update = {
       product_name: product_name,
       slug: slug,
@@ -258,8 +283,6 @@ export async function updateProduct(formData) {
       brand_name: brand_name,
       price: price,
       stock: stock,
-      isFeatured: isFeatured,
-      banner: banner,
       description: description,
     };
     console.log("Data to update:", data_to_update);

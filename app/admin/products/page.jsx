@@ -55,8 +55,9 @@ const AdminProductsPage = async (props) => {
           <TableRow>
             <TableHead>ID</TableHead>
             <TableHead>NAME</TableHead>
-            <TableHead className='text-right'>PRICE</TableHead>
             <TableHead>CATEGORY</TableHead>
+            <TableHead>BRAND</TableHead>
+            <TableHead className='text-right'>PRICE</TableHead>
             <TableHead>STOCK</TableHead>
             <TableHead>RATING</TableHead>
             <TableHead className='w-[100px]'>ACTIONS</TableHead>
@@ -66,13 +67,14 @@ const AdminProductsPage = async (props) => {
           {products.data.map((product) => (
             <TableRow key={product.id}>
               <TableCell>{(product.id)}</TableCell>
-              <TableCell>{product.product_name}</TableCell>
+              <TableCell>{product.product_name}</TableCell>          
+              <TableCell>{product.category_name}</TableCell>
+              <TableCell>{product.brand_name}</TableCell>
               <TableCell className='text-right'>
                 {formatCurrency(product.price.toString())}
               </TableCell>
-              <TableCell>{product.category}</TableCell>
-              <TableCell>{product.stock}</TableCell>
-              <TableCell>{Number(product.rating)}</TableCell>
+              <TableCell className='text-center'>{product.stock}</TableCell>
+              <TableCell className='text-center'>{Number(product.rating)}</TableCell>
               <TableCell className='flex gap-1'>
                 <Button asChild variant='outline' size='sm'>
                   <Link href={`/admin/products/${product.id}`}>Edit</Link>

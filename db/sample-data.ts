@@ -37,6 +37,10 @@ const sampleData = {
     {
       brand_name: 'Tommy Hilfiger',
       description: 'Tommy Hilfiger is a premium lifestyle brand known for its classic American style.',
+    },
+     {
+      brand_name: 'Calvin Klein',
+      description: 'Calvin Klein is a premium lifestyle brand known for its modern and minimalist designs.',
     }
   ],
     categories: [

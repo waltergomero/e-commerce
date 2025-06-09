@@ -11,9 +11,11 @@ export async function POST(req) {
     const formData = await req.formData();
     const file = formData.get("image");
     const ext = formData.get("extension");
+    const productId = formData.get("product_id");
     const slug = formData.get("slug");
+  
 
-    var date = new Date();
+      var date = new Date();
     const unixTimestamp = Math.floor(date.getTime());
 
     const newName = slug + "-" + unixTimestamp + "." + ext;
@@ -24,7 +26,7 @@ export async function POST(req) {
     const arrayBuffer = await file.arrayBuffer();
     const buffer = new Uint8Array(arrayBuffer);
     const imageName = newFileName.name;
-    const partialDir = '/images/product/banner/';
+    const partialDir = '/images/product/images/';
     const dir = path.join(process.cwd(), 'public', partialDir);
 
     const dirExist = await checkPublicPath(dir);
@@ -36,12 +38,12 @@ export async function POST(req) {
     const src = `./public/${partialPath}`
  
     await fs.writeFileSync(src, buffer);
-    
-    await prisma.Product.update({
-      where: {slug: slug},
+
+    await prisma.ProductImages.create({
       data: {
-        banner: partialPath,
-        } 
+        productId: productId,
+        src: partialPath,
+      }
     });
 
     return NextResponse.json({ status: "success" });
@@ -58,29 +60,28 @@ async function checkPublicPath(dir){
 
 export async function DELETE(req) {
   try {
-    const { slug } = await req.json();
-    if (!slug) {
-      return NextResponse.json({ status: "fail", error: "Slug is required" });
+    const { image_id } = await req.json();
+    if (!image_id) {
+      return NextResponse.json({ status: "fail", error: "ID is required" });
     }
 
-    const product = await prisma.Product.findUnique({
-      where: { slug: slug },
-      select: { banner: true }
+    const image = await prisma.ProductImages.findUnique({
+      where: { id: image_id },
+      select: { src: true }
     });
 
-    if (!product || !product.banner) {
-      return NextResponse.json({ status: "fail", error: "Product not found or no banner image" });
+    if (!image || !image.src) {
+      return NextResponse.json({ status: "fail", error: "Product not found." });
     }
 
-    const imagePath = path.join(process.cwd(), 'public', product.banner);
-    
+    const imagePath = path.join(process.cwd(), 'public', image.src);
+
     if (fs.existsSync(imagePath)) {
       fs.unlinkSync(imagePath);
     }
 
-    await prisma.Product.update({
-      where: { slug: slug },
-      data: { banner: null }
+    await prisma.ProductImages.delete({
+      where: { id: image_id },
     });
 
     return NextResponse.json({ status: "success" });

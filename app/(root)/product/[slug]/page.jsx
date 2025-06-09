@@ -23,7 +23,7 @@ const ProductDetailsPage = async ({params}) => {
         <section>
             <div className='grid grid-cols-1 md:grid-cols-5'>
                 <div className='col-span-2'>
-                    <ProductImages images={product.images}/>
+                    <ProductImages images={product.ProductImages}/>
                 </div>
                 <div className='col-span-2 p-5'>
                     <div className='flex flex-col gap-6'>
@@ -66,7 +66,7 @@ const ProductDetailsPage = async ({params}) => {
                                         slug: product.slug,
                                         price: Number(product.price),
                                         quantity: 1,
-                                        image: product.images[0],
+                                        image: product.ProductImages[0].src,
                                     }}/>
                                 </div> )
                             }

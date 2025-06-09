@@ -12,7 +12,6 @@ CREATE TABLE "Product" (
     "price" DECIMAL(12,2) NOT NULL DEFAULT 0,
     "rating" DECIMAL(3,2) NOT NULL DEFAULT 0,
     "numReviews" INTEGER NOT NULL DEFAULT 0,
-    "isFeatured" BOOLEAN NOT NULL DEFAULT false,
     "banner" TEXT,
     "isactive" BOOLEAN DEFAULT true,
     "createdAt" TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -23,7 +22,7 @@ CREATE TABLE "Product" (
 -- CreateTable
 CREATE TABLE "ProductImages" (
     "id" UUID NOT NULL DEFAULT gen_random_uuid(),
-    "product_id" TEXT NOT NULL,
+    "productId" UUID NOT NULL,
     "src" TEXT NOT NULL,
 
     CONSTRAINT "ProductImages_pkey" PRIMARY KEY ("id")
@@ -168,6 +167,9 @@ CREATE UNIQUE INDEX "product_slug_idx" ON "Product"("slug");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
+
+-- AddForeignKey
+ALTER TABLE "ProductImages" ADD CONSTRAINT "ProductImages_productId_fkey" FOREIGN KEY ("productId") REFERENCES "Product"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Account" ADD CONSTRAINT "Account_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;

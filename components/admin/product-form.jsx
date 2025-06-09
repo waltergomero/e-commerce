@@ -22,7 +22,6 @@ const ProductForm = ({ brands, categories }) => {
   const router = useRouter();
   const [state, setState] = useState(null);
   const [bannerImage, setBannerImage] = useState(null);
-  const [isFeatured, setIsFeatured] = useState(false);
   const [categoryValue, setCategoryValue] = useState("");
   const [brandValue, setBrandValue] = useState("");
 
@@ -50,8 +49,8 @@ const handleBannerChange = async (event) => {
 };
   
   const handleRemoveBannerImage = (index) => {
-        const newImages = banner.filter((_, i) => i !== index);
-        setBanner(newImages);
+        //const newImages = banner.filter((_, i) => i !== index);
+        setBannerImage(null);
     };
 
   const handleCategory = e => {
@@ -71,13 +70,8 @@ const handleBannerChange = async (event) => {
     console.log(bannerImage)
     try {
         const formData = new FormData(event.currentTarget);
-        if(isFeatured && bannerImage === null) {
-              toast.error("Please upload a banner image for featured products.");
-              return;
-          }
-        else {
-              const response = await createProduct(formData);
-              if (response.error === "validation") {
+        const response = await createProduct(formData);
+          if (response.error === "validation") {
                 setState(response);
                 toast.error(response.message);
               } else if (response.error === "already_exists") {
@@ -106,8 +100,7 @@ const handleBannerChange = async (event) => {
                 router.push('/admin/products');
               } else {
                 toast.error("test " + response.error);
-              }
-            }
+              }        
       }
       catch (e) {
             toast.error("Failed adding a product: " + e.message);
@@ -191,10 +184,8 @@ const handleBannerChange = async (event) => {
       </div>
       <div className='grid grid-cols-1'>
         <div className='flex space-x-2 mb-1'>
-         <Label htmlFor="isFeatured" className='pb-2  text-sm'>Is Featured Product?:</Label>
-         <Checkbox  className='border-2 border-gray-600' onClick={() => setIsFeatured(!isFeatured)}  /> 
+         <Label htmlFor="banner-upload" className='pb-2  text-sm'>Does product needs a banner?:</Label>
         </div>
-          {isFeatured ? (<>
             <div className='flex space-x-2 mb-1'>
               <Input
                 id="banner-upload"
@@ -236,9 +227,7 @@ const handleBannerChange = async (event) => {
             </CardContent>
           </Card>
           </div>
-          </>
-          ) : null}
-        
+
       </div>
       <div className='grid grid-cols-1'>
         <Label htmlFor="description" className='pb-2'>Description:</Label>
