@@ -157,7 +157,7 @@ const ProductImageUploader = ({product}) => {
                     disabled={!isActive}
                     onClick={uploadImages}
                     className={ `flex h-10 items-center rounded-lg 
-                                        ${isActive ? 'bg-blue-600 hover:bg-blue-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600' 
+                                        ${isActive ? 'bg-blue-600 hover:bg-blue-700 focus-visible:outline-offset-2 focus-visible:outline-blue-600' 
                                         : 'bg-blue-200'} 
                                         px-4 text-sm font-medium text-white transition-colors `}>
                                            <span className="hidden md:block">Save Images</span>
