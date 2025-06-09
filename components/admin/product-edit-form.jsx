@@ -136,7 +136,6 @@ const handleBannerChange = async (event) => {
           }
         }
 
-
     return (
       <>
       <form onSubmit={onSubmit} className='space-y-8'>
