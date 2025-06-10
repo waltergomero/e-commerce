@@ -4,12 +4,14 @@ import { signIn, signOut } from '@/auth';
 import { AuthError } from 'next-auth';
 import bcryptjs from "bcryptjs";
 import { unstable_noStore as noStore } from 'next/cache';
-import { userSignupSchema, userSigninSchema, shippingAddressSchema, paymentMethodSchema, updateProfileSchema} from "@/schemas/validation-schemas";
+import { userSignupSchema, userSigninSchema, shippingAddressSchema, 
+  paymentMethodSchema, updateProfileSchema, userUpdateSchema} from "@/schemas/validation-schemas";
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import  prisma  from '@/prisma/prisma';
 import { auth } from '@/auth';
 import { PAYMENT_METHODS } from '@/lib/constants';
+import { PAGE_SIZE } from '@/lib/constants';
 
   //check if user exists using email
   export async function verifyIfUserExists(email) {
@@ -72,6 +74,8 @@ export async function signInWithCredentials(formData) {
     await signOut();
 
   }
+
+
 
   //get user data by ID
   export const fetchUserById = async (id) => {
@@ -381,9 +385,9 @@ export async function getAllUsers({
 // Delete a user
 export async function deleteUser(id) {
   try {
-    await prisma.user.delete({ where: { id } });
+    await prisma.User.delete({ where: { id } });
 
-    revalidatePath('/dashboard/user');
+    revalidatePath('/admin/users');
 
     return {
       success: true,
@@ -392,23 +396,55 @@ export async function deleteUser(id) {
   } catch (error) {
     return {
       success: false,
-      message: formatError(error),
+      message: error.message,
     };
   }
 }
 
 // Update a user
-export async function updateUser(user) {
+export async function updateUser(formData) {
   try {
-    await prisma.user.update({
-      where: { id: user.id },
-      data: {
-        name: user.name,
-        role: user.role,
-      },
-    });
+       console.log("Creating product with formData:", formData);
+          const first_name = formData.get("first_name");
+          const last_name = formData.get("last_name");
+          const name = `${first_name}  ${last_name}`;
+          const email = formData.get("email");
+          const isadmin = Boolean(formData.get("isadmin"));
+          const isactive = Boolean(formData.get("isactive"));
+          const userId = formData.get("user_id");
+    console.log("userId: ", isadmin, isactive, userId);
 
-    revalidatePath('/dashboard/user');
+        const validatedFields = userUpdateSchema.safeParse({
+          first_name,
+          last_name,
+          email
+        });
+
+        if (!validatedFields.success) {
+          return {
+            error: "validation",
+            zodErrors: validatedFields.error.flatten().fieldErrors,
+            strapiErrors: null,
+            message: "Missing information on key fields.",
+          };
+        }
+    const user = await prisma.User.findUnique({ where: { id: userId } });
+    if (!user) {
+      return { success: false, message: 'User not found' };
+    }
+    // Update the user data
+    const updatedUser = {
+      first_name,
+      last_name,
+      name:  name,
+      isadmin,
+      isactive,
+    };
+
+    await prisma.User.update({
+      where: { id: user.id },
+      data: updatedUser,
+    });
 
     return {
       success: true,

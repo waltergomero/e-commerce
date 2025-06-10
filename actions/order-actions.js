@@ -366,7 +366,7 @@ export async function getAllOrders({
         }
       : {};
 
-  const data = await prisma.order.findMany({
+  const data = await prisma.Order.findMany({
     where: {
       ...queryFilter,
     },
@@ -376,7 +376,7 @@ export async function getAllOrders({
     include: { user: { select: { name: true } } },
   });
 
-  const dataCount = await prisma.order.count();
+  const dataCount = await prisma.Order.count();
 
   return {
     data,

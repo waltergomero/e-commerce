@@ -14,6 +14,7 @@ import Pagination from '@/components/shared/pagination';
 import DeleteDialog from '@/components/shared/delete-dialog';
 import { requireAdmin } from '@/lib/auth-guard';
 
+
 const AdminProductsPage = async (props) => {
   await requireAdmin();
 
@@ -29,11 +30,12 @@ const AdminProductsPage = async (props) => {
     category,
   });
 
+
   return (
     <div className='space-y-2'>
       <div className='flex-between'>
         <div className='flex items-center gap-3'>
-          <h1 className='h2-bold'>Products</h1>
+          <h1 className='h3-bold'>Products</h1>
           {searchText && (
             <div>
               Filtered by <i>&quot;{searchText}&quot;</i>{' '}
@@ -66,7 +68,7 @@ const AdminProductsPage = async (props) => {
         <TableBody>
           {products.data.map((product) => (
             <TableRow key={product.id}>
-              <TableCell>{(product.id)}</TableCell>
+              <TableCell>{formatId(product.id)}</TableCell>
               <TableCell>{product.product_name}</TableCell>          
               <TableCell>{product.category_name}</TableCell>
               <TableCell>{product.brand_name}</TableCell>

@@ -7,6 +7,8 @@ import { productSchema,updateProductSchema } from '@/schemas/validation-schemas'
 import { revalidatePath } from 'next/cache';
 import { unstable_noStore as noStore } from 'next/cache';
 import ProductImages from '@/components/product/product-images';
+const fs = require('fs');
+import path from 'path';
 
 //get all products
 export async function getLatestProducts() {
@@ -61,7 +63,7 @@ export async function getAllProducts({
   const queryFilter =
     query && query !== 'all'
       ? {
-          name: {
+          product_name: {
             contains: query,
             mode: 'insensitive',
           },
@@ -92,7 +94,7 @@ export async function getAllProducts({
         }
       : {};
 
-  const data = await prisma.product.findMany({
+  const data = await prisma.Product.findMany({
     where: {
       ...queryFilter,
       ...categoryFilter,
@@ -111,7 +113,7 @@ export async function getAllProducts({
     take: limit,
   });
 
-  const dataCount = await prisma.product.count();
+  const dataCount = await prisma.Product.count();
 
   return {
     data,
@@ -122,13 +124,34 @@ export async function getAllProducts({
 // Delete a product
 export async function deleteProduct(id) {
   try {
-    const productExists = await prisma.product.findFirst({
+    const productExists = await prisma.Product.findFirst({
       where: { id },
     });
 
     if (!productExists) throw new Error('Product not found');
 
-    await prisma.product.delete({ where: { id } });
+    // Delete banner image from public/images/product/banner based on product id
+    const bannerImage = productExists.banner;
+
+    if (bannerImage) {
+      const bannerImagePath = path.join(process.cwd(), 'public', bannerImage);
+      if (fs.existsSync(bannerImagePath)) {
+        fs.unlinkSync(bannerImagePath);
+      }
+    }
+
+    // Delete product images from public/images/product/images based on product id
+    const productImages = await prisma.ProductImages.findMany({
+      where: { productId: id },
+    }); 
+    productImages.forEach((image) => {
+      const imagePath = path.join(process.cwd(), 'public', image.src);
+      if (fs.existsSync(imagePath)) {
+        fs.unlinkSync(imagePath);
+      }
+    });
+
+     await prisma.product.delete({ where: { id } });
 
     revalidatePath('/admin/products');
 
@@ -137,7 +160,7 @@ export async function deleteProduct(id) {
       message: 'Product deleted successfully',
     };
   } catch (error) {
-    return { success: false, message: formatError(error) };
+    return { success: false, message: error.message };
   }
 }
 

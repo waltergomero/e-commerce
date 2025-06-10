@@ -12,6 +12,7 @@ import {
 import Pagination from '@/components/shared/pagination';
 import DeleteDialog from '@/components/shared/delete-dialog';
 import { requireAdmin } from '@/lib/auth-guard';
+import { formatId } from '@/lib/utils';
 
 const AdminBrandsPage = async (props) => {
   await requireAdmin();
@@ -30,7 +31,7 @@ const AdminBrandsPage = async (props) => {
     <div className='space-y-2'>
       <div className='flex-between'>
         <div className='flex items-center gap-3'>
-          <h1 className='h2-bold'>Brands</h1>
+          <h1 className='h3-bold'>Brands</h1>
           {searchText && (
             <div>
               Filtered by <i>&quot;{searchText}&quot;</i>{' '}
@@ -60,7 +61,7 @@ const AdminBrandsPage = async (props) => {
         <TableBody>
           {brands?.map((brand) => (
             <TableRow key={brand.id}>
-              <TableCell>{(brand.id)}</TableCell>
+              <TableCell>{formatId(brand.id)}</TableCell>
               <TableCell>{brand.brand_name}</TableCell>
               <TableCell>{brand.description}</TableCell>
               <TableCell>{brand.isactive ? 'Yes' : 'No'}</TableCell>
